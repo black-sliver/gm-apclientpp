@@ -1,6 +1,6 @@
 {
     // set up external function call signatures
-    global.ext_apclient_init = external_define('apclient.dll', 'apclient_init', dll_cdecl,
+    global.ext_apclient_init = external_define('gm-apclientpp.dll', 'apclient_init', dll_cdecl,
                                                ty_string, 1,
                                                ty_real);
     //  TODO: run all the other external_define() to set up global.ap_*
