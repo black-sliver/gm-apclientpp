@@ -203,7 +203,8 @@ const char* apclient_render_json(const char* json_str, double format)
         return "";
     }
 
-    result = apclient->render_json(msg, (APClient::RenderFormat)format);
+    int int_format = (int)format;
+    result = apclient->render_json(msg, (APClient::RenderFormat)int_format);
     return result.c_str();
 }
 
@@ -361,7 +362,8 @@ double apclient_sync()
 
 double apclient_status_update(double status)
 {
-    return GM_BOOL(apclient && apclient->StatusUpdate((APClient::ClientStatus)status));
+    int int_status = (int)status;
+    return GM_BOOL(apclient && apclient->StatusUpdate((APClient::ClientStatus)int_status));
 }
 
 double apclient_location_checks(const char* locations_str)
