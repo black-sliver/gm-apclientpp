@@ -11,7 +11,8 @@ allowing to connect to an [Archipelago](https://archipelago.gg/) server with nat
 This was written for Game Maker 7 and 8, however all versions of GM that support the API described in "Using DLL" in
 "Designing Games with Game Maker" of GM7/GM8 should be supported.
 It only depends on `external_define`, `external_call` and `execute_string`. This is not an "extension" (.gex) file.
-GMS2+ is (currently) not because it uses different syntax for strings.
+
+GMS2+ is (currently) not supported because it uses different syntax for strings.
 
 ## API Limitations
 
