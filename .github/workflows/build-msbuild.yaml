@@ -5,7 +5,7 @@ on:
   workflow_call:
 
 jobs:
-  build-51-msbuild:
+  build-msbuild:
     # TODO: automated testing
     env:
       BUILD_PLATFORM: "x86"
