@@ -1,3 +1,10 @@
+/* gm-apclientpp.cpp
+ * Game Maker wrapper for apclientpp
+ * https://github.com/black-sliver/gm-apclientpp
+ */
+
+#include "../include/gm-apclientpp.h"
+
 #include <string>
 #include <queue>
 #include <utility>
@@ -8,62 +15,11 @@
 #include <nlohmann/json.hpp>
 
 
-#ifndef DLL_EXPORT
-#ifdef _WIN32
-#define DLL_EXPORT __declspec(dllexport)
-#define DLL_CALL __cdecl
-#else
-#define DLL_EXPORT __attribute__ ((visibility ("default")))
-#define DLL_CALL
+#ifndef GM_APCLIENTPP_EXPORTS
+#   ifndef GM_DLL_EXPORT // compiling cpp without explicit export
+#       error "Define GM_APCLIENTPP_EXPORTS when bulding DLL or GM_DLL_EXPORT= when building static."
+#   endif
 #endif
-#endif
-
-
-extern "C" {
-    DLL_EXPORT double DLL_CALL apclient_init(double api_version);
-    DLL_EXPORT double DLL_CALL apclient_deinit(); 
-    DLL_EXPORT double DLL_CALL apclient_connect(const char* uuid, const char* game, const char* host);
-    DLL_EXPORT double DLL_CALL apclient_disconnect();
-    DLL_EXPORT double DLL_CALL apclient_reset();
-    DLL_EXPORT const char* DLL_CALL apclient_poll();
-
-    DLL_EXPORT const char* DLL_CALL apclient_get_player_alias(double slot);
-    DLL_EXPORT const char* DLL_CALL apclient_get_player_game(double slot);
-    DLL_EXPORT const char* DLL_CALL apclient_get_location_name(double id, const char* game);
-    DLL_EXPORT double DLL_CALL apclient_get_location_id(const char* name);
-    DLL_EXPORT const char* DLL_CALL apclient_get_item_name(double id, const char* game);
-    DLL_EXPORT double DLL_CALL apclient_get_item_id(const char* name);
-
-    DLL_EXPORT const char* DLL_CALL apclient_render_json(const char* json_str, double format);
-
-    DLL_EXPORT double DLL_CALL apclient_get_state();
-    DLL_EXPORT const char* DLL_CALL apclient_get_seed();
-    DLL_EXPORT const char* DLL_CALL apclient_get_slot();
-    DLL_EXPORT double DLL_CALL apclient_get_player_number();
-    DLL_EXPORT double DLL_CALL apclient_get_hint_points();
-    DLL_EXPORT double DLL_CALL apclient_get_hint_cost_points();
-    DLL_EXPORT double DLL_CALL apclient_get_hint_cost_percent();
-    DLL_EXPORT double DLL_CALL apclient_is_data_package_valid();
-    DLL_EXPORT double DLL_CALL apclient_get_server_time();
-    DLL_EXPORT double DLL_CALL apclient_has_password();
-    DLL_EXPORT double DLL_CALL apclient_get_server_time();
-    DLL_EXPORT double DLL_CALL apclient_has_password();
-
-    DLL_EXPORT const char* DLL_CALL apclient_get_checked_locations();
-    DLL_EXPORT const char* DLL_CALL apclient_get_missing_locations();
-
-    DLL_EXPORT double DLL_CALL apclient_set_items_handling(double items_handling);
-    DLL_EXPORT double DLL_CALL apclient_set_version(double major, double minor, double revision);
-
-    DLL_EXPORT double DLL_CALL apclient_say(const char* message);
-    DLL_EXPORT double DLL_CALL apclient_connect_slot(const char* name, const char* password, const char* tags);
-    DLL_EXPORT double DLL_CALL apclient_connect_update_items_handling();
-    DLL_EXPORT double DLL_CALL apclient_connect_update(const char* tags);
-    DLL_EXPORT double DLL_CALL apclient_sync();
-    DLL_EXPORT double DLL_CALL apclient_status_update(double status);
-    DLL_EXPORT double DLL_CALL apclient_location_checks(const char* locations_json);
-    DLL_EXPORT double DLL_CALL apclient_location_scouts(const char* locations_json, double create_as_hint);
-}
 
 
 #define GM_FALSE (0.)
