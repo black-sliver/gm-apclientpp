@@ -5,11 +5,12 @@
 
 #include "../include/gm-apclientpp.h"
 
-#include <string>
-#include <queue>
-#include <utility>
-#include <memory>
+#include <algorithm>
 #include <cstdint>
+#include <memory>
+#include <queue>
+#include <string>
+#include <utility>
 
 #include <apclient.hpp>
 #include <nlohmann/json.hpp>
@@ -43,6 +44,45 @@ static void from_json(const json& j, std::list<APClient::TextNode>& nodes) {
     for (const auto& v: j) {
         nodes.push_back(APClient::TextNode::from_json(v));
     }
+}
+
+static void queue_script(const std::string& commands)
+{
+    queue.push("{\r\n" + commands + "\r\n}");
+}
+
+static void replace_all(std::string& s, const std::string& from, const std::string& to) {
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while ((start_pos = s.find(from, start_pos)) != std::string::npos) {
+        s.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+}
+
+static void escape_inplace(std::string& s)
+{
+    // # -> \#
+    replace_all(s, "#", "\\#");
+    // \n -> #
+    replace_all(s, "\n", "#");
+    // \r -> nothing
+    replace_all(s, "\r", "");
+    // ' -> ' + "'" + '
+    replace_all(s, "'", "'+\"'\"+'");
+}
+
+static std::string escape_string(const std::string& orig)
+{
+   std::string s = orig;
+   escape_inplace(s);
+   return s;
+}
+
+static void show_error(const std::string& error)
+{
+    queue_script("show_message('Error: " + escape_string(error) + "');");
 }
 
 
@@ -156,6 +196,7 @@ const char* apclient_render_json(const char* json_str, double format)
     try {
         from_json(json::parse(json_str), msg);
     } catch (std::exception ex) {
+        show_error(ex.what());
         return "";
     }
 
@@ -284,7 +325,14 @@ double apclient_say(const char* message)
 
 double apclient_connect_slot(const char* name, const char* password, const char* tags_str)
 {
-    json tags_j = json::parse(tags_str);
+    json tags_j;
+    try {
+        tags_j = json::parse(tags_str);
+    } catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+
     if (apclient && apclient->ConnectSlot(name, password, items_handling, tags_j, client_version)) {
         items_handling_changed = false;
         return GM_TRUE;
@@ -303,7 +351,14 @@ double apclient_connect_update_items_handling()
 
 double apclient_connect_update(const char* tags_str)
 {
-    json tags_j = json::parse(tags_str);
+    json tags_j;
+    try {
+        tags_j = json::parse(tags_str);
+    } catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+
     if (apclient && apclient->ConnectUpdate(items_handling_changed, items_handling, true, tags_j)) {
         items_handling_changed = false;
         return GM_TRUE;
@@ -324,12 +379,26 @@ double apclient_status_update(double status)
 
 double apclient_location_checks(const char* locations_str)
 {
-    json locations_j = json::parse(locations_str);
+    json locations_j;
+    try {
+        locations_j = json::parse(locations_str);
+    } catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+
     return GM_BOOL(apclient && apclient->LocationChecks(locations_j));
 }
 
 double apclient_location_scouts(const char* locations_str, double create_as_hint)
 {
-    json locations_j = json::parse(locations_str);
+    json locations_j;
+    try {
+        locations_j = json::parse(locations_str);
+    } catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+
     return GM_BOOL(apclient && apclient->LocationScouts(locations_j, (int)create_as_hint));
 }
