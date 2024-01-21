@@ -18,6 +18,7 @@ It only depends on `external_define`, `external_call` and `execute_string`. This
 * Arrays have to be passed as globals from the DLL to GM callback functions/scripts.
 * There is a limit of how many arguments can be passed into DLL functions and as such there are some extra helper
   functions to "pre-set" arguments.
+* DLL functions that have no return value will return true on success or false in case of error.
 
 ## Types
 
@@ -41,17 +42,17 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 **Warning:** some of the functions will only return correct values after room info or when `is_data_package_valid()`
   returns true, typically it's safe to just wait until `ap_connected` event was called.
 
-* `apclient_init(api_version: int): bool`: initialize the lib and set API version (currently `1`),
+* `apclient_init(api_version: int): bool` initialize the lib and set API version (currently `1`),
    returns `true` on success.
-* `apclient_deinit()`: free all resources (kind of optional, but has to be called before a second `apclient_init`)
-* `apclient_connect(uuid: str, game: str, host: str)`: start connecting to a server.
+* `apclient_deinit(): bool` free all resources (kind of optional, but has to be called before a second `apclient_init`)
+* `apclient_connect(uuid: str, game: str, host: str): bool` start connecting to a server.
    uuid can be an empty string (for now).
-* `apclient_poll(): str`: call this each frame (step) to handle communication and receive events,
+* `apclient_poll(): str` call this each frame (step) to handle communication and receive events,
    returns a string that needs to be executed using `execute_string` to call your event callbacks.
-* `apclient_disconnect()`: reset internal state and disconnect.
-* `apclient_reset()`: reset internal state and reconnect on next `poll`.
-* `apclient_get_player_alias(slot: int): str`: returns player alias, player name, or `'Unknown'` for given slot.
-* `apclient_get_player_game(slot: int): str`: returns game name or `''` for given slot.
+* `apclient_disconnect(): bool` reset internal state and disconnect.
+* `apclient_reset(): bool` reset internal state and reconnect on next `poll`.
+* `apclient_get_player_alias(slot: int): str` returns player alias, player name, or `'Unknown'` for given slot.
+* `apclient_get_player_game(slot: int): str` returns game name or `''` for given slot.
 * `apclient_get_location_name(id: int, game: str): str` returns location name or `'Unknown'` for given id and game.
 * `apclient_get_location_id(name: str): int` returns location id for given name in connected game,
    or `< -9007199254740991` if not found.
@@ -79,8 +80,9 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 The following functions set variables that would normally be passed into another function, but can't be because of GM
 limitations.
 
-* `apclient_set_items_handling(int)` set the items handling that will be passed to ConnectSlot and ConnectUpdate.
-* `apclient_set_version(int, int, int)` set the mod/client version that will be passed to ConnectSlot.
+* `apclient_set_items_handling(items_handling: int): bool` set the items handling that will be passed to ConnectSlot
+   and ConnectUpdate.
+* `apclient_set_version(ma: int, mi: int, r: int): bool` set the mod/client version that will be passed to ConnectSlot.
 
 The following functions interact directly with the AP server and return `true` if the command was successfully queue,
 or false if the command was invalid or the connection was not established yet.
