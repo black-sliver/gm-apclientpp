@@ -141,9 +141,10 @@ so you need to define all of them:
 * `ap_slot_refused(len: int)` called when `apclient_connect_slot` failed, len is the size of error messages,
    messages can be retrieved from `global.arg_errors: str[]`.
 * `ap_slot_connected(slot_data: json)` called when `apclient_connect_slot` succeeded
-* `ap_received_items(index: int, len: int)` called when receiving items, index is the "item index" of the first item
+* `ap_items_received(index: int, len: int)` called when receiving items, index is the "item index" of the first item
    that was received, len is the number of items that were received.
-   Use `global.arg_ids: int[]`, `global.arg_names: str[]` and `global.arg_players: int[]` to retrieve the items.
+   Use `global.arg_ids: int[]`, `global.arg_names: str[]`, `global.arg_flags: int[]` and `global.arg_players: int[]`
+   to retrieve the items.
 * `ap_location_info(len: int)` called as result of a scout, len is the number of results (individual scouts).
    Use `global.arg_locations: int[]`, `global.arg_items: int[]`, `global.arg_flags: int[]`
    and `global.arg_players: int[]` to get the corresponding location ids and item ids.
