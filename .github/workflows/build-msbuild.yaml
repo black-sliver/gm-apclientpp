@@ -62,5 +62,5 @@ jobs:
       - name: Store
         uses: actions/upload-artifact@v4
         with:
-          name: lua-apclientpp-lua51-${{matrix.sln}}
+          name: gm-apclientpp-${{matrix.sln}}
           path: ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll
