@@ -145,7 +145,8 @@ so you need to define all of them:
    that was received, len is the number of items that were received.
    Use `global.arg_ids: int[]`, `global.arg_names: str[]` and `global.arg_players: int[]` to retrieve the items.
 * `ap_location_info(len: int)` called as result of a scout, len is the number of results (individual scouts).
-   Use `global.arg_locations: int[]` and `global.arg_items: int[]` to get the corresponding location ids and item ids.
+   Use `global.arg_locations: int[]`, `global.arg_items: int[]`, `global.arg_flags: int[]`
+   and `global.arg_players: int[]` to get the corresponding location ids and item ids.
 * `ap_location_checked(len: int)` called when locations for the connected slot were checked, len is the count.
    Use `global.arg_ids: int[]` to retrieve the checked locations ids.
 * `ap_print_json(message: json)` pass `message` back in to render_json to get a human readable text
