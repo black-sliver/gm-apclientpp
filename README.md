@@ -1,8 +1,8 @@
 # GM-APClientPP
 
-Work in progress / API preview of
+Work in progress.
 
-~~This is~~ a native ("C") Game Maker compatible wrapper for the C++ Archipelago Client Lib
+This is a native ("C") Game Maker compatible wrapper for the C++ Archipelago Client Lib
 [apclientpp](https://github.com/black-sliver/apclientpp),
 allowing to connect to an [Archipelago](https://archipelago.gg/) server with native performance and SSL support.
 
@@ -137,7 +137,7 @@ The following consts should be set up in the init:
 The script returned by `ap_poll` expects the following functions to exist in your scripts to handle events,
 so you need to define all of them:
 
-* `ap_room_info(data: json)` called when receiving RoomInfo from server, in most cases the argument will be unused
+* `ap_room_info(data: json)` called when receiving RoomInfo from server, argument is currently unused (`'{}'`).
 * `ap_slot_refused(len: int)` called when `apclient_connect_slot` failed, len is the size of error messages,
    messages can be retrieved from `global.arg_errors: str[]`.
 * `ap_slot_connected(slot_data: json)` called when `apclient_connect_slot` succeeded

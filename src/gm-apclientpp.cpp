@@ -108,6 +108,96 @@ double apclient_deinit()
 double apclient_connect(const char* uuid, const char* game, const char* host)
 {
     apclient.reset(new APClient(uuid, game, host));
+
+    apclient->set_room_info_handler([]() {
+        queue_script(
+            "j = '{}';\r\n" // currently we don't pass anything from room info
+            "ap_room_info(j);"
+        );
+    });
+
+    apclient->set_slot_refused_handler([](const std::list<std::string>& reasons) {
+        std::string s = "global.arg_errors = [];\r\n";
+        int i = 0;
+        for (const auto& reason: reasons)
+            s += "global.arg_errors[" + std::to_string(i++) + "]='" + escape_string(reason) + "';\r\n";
+        s += "ap_slot_refused(" + std::to_string(i) + ");";
+        queue_script(s);
+    });
+
+    apclient->set_slot_connected_handler([](const json& slot_data) {
+        queue_script(
+            "j = '" + escape_string(slot_data.dump()) + "';\r\n"
+            "ap_slot_connected(j);"
+        );
+    });
+
+    apclient->set_items_received_handler([](const std::list<APClient::NetworkItem>& items) {
+        std::string game = apclient->get_player_game(apclient->get_player_number());
+        std::string s =
+            "global.arg_ids = [];\r\n"
+            "global.arg_names = [];\r\n"
+            "global.arg_flags = [];\r\n"
+            "global.arg_players = [];\r\n";
+        int i = 0;
+        for (const auto& item: items) {
+            std::string item_name = apclient->get_item_name(item.item, game);
+            s +=
+                "global.arg_items[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
+                "global.arg_names[" + std::to_string(i) + "]='" + escape_string(item_name) + "';\r\n";
+                "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
+                "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n";
+            i++;
+        };
+        s += "ap_location_info(" + std::to_string(i) + ");";
+    });
+
+    apclient->set_location_info_handler([](const std::list<APClient::NetworkItem>& items) {
+        std::string s =
+            "global.arg_items = [];\r\n"
+            "global.arg_flags = [];\r\n"
+            "global.arg_players = [];\r\n"
+            "global.arg_locations = [];\r\n";
+        int i = 0;
+        for (const auto& item: items) {
+            s +=
+                "global.arg_items[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
+                "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
+                "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n"
+                "global.arg_locations[" + std::to_string(i) + "]=" + std::to_string(item.location) + ";\r\n";
+            i++;
+        };
+        s += "ap_location_info(" + std::to_string(i) + ");";
+    });
+
+    apclient->set_location_checked_handler([](const std::list<int64_t>& locations) {
+        std::string s = "global.arg_ids = [];\r\n";
+        int i = 0;
+        for (const auto& location: locations)
+            s += "global.arg_ids[" + std::to_string(i++) + "]=" + std::to_string(location) + ";\r\n";
+        s += "ap_location_checked(" + std::to_string(i) + ");";
+        queue_script(s);
+    });
+
+    apclient->set_print_json_handler([](const json& command) {
+        queue_script(
+            "j = '" + escape_string(command.dump()) + "';\r\n"
+            "ap_print_json(j);"
+        );
+    });
+
+    apclient->set_socket_connected_handler([]() {
+        queue_script("ap_socket_connected();");
+    });
+
+    apclient->set_socket_disconnected_handler([]() {
+        queue_script("ap_socket_disconnected();");
+    });
+
+    apclient->set_socket_error_handler([](const std::string& msg) {
+        queue_script("ap_socket_error('" + escape_string(msg) + "');");
+    });
+
     return GM_TRUE;
 }
 
