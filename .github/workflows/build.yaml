@@ -1,0 +1,11 @@
+name: Build All
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-msbuild:
+    uses: ./.github/workflows/build-msbuild.yaml
