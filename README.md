@@ -8,7 +8,7 @@ allowing to connect to an [Archipelago](https://archipelago.gg/) server with nat
 
 ## Supported Game Maker
 
-This was written for Game Maker 7 and 8, however all versions of GM that support the API descibed in "Using DLL" in
+This was written for Game Maker 7 and 8, however all versions of GM that support the API described in "Using DLL" in
 "Designing Games with Game Maker" of GM7/GM8 should be supported.
 It only depends on `external_define`, `external_call` and `execute_string`. This is not an "extension" (.gex) file.
 
@@ -68,7 +68,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_get_hint_points(): int` returns hint points for connected player.
 * `apclient_get_hint_cost_points(): int` returns hint cost in points (locations checked).
 * `apclient_get_hint_cost_precent(): int` returns hint cost in percent (% of locations checked).
-* `apclient_is_data_package_valid(): bool` returns `true` if all strings for item and location names are vailable.
+* `apclient_is_data_package_valid(): bool` returns `true` if all strings for item and location names are available.
 * `apclient_get_server_time(): number`: returns the estimated server time stamp as floating point number.
    This may be useful for things like deathlink.
 * `apclient_has_password(): bool`: available in and after `ap_room_info`, `true` if `connect_slot` requires password.

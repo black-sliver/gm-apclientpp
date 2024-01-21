@@ -17,7 +17,7 @@
 
 #ifndef GM_APCLIENTPP_EXPORTS
 #   ifndef GM_DLL_EXPORT // compiling cpp without explicit export
-#       error "Define GM_APCLIENTPP_EXPORTS when bulding DLL or GM_DLL_EXPORT= when building static."
+#       error "Define GM_APCLIENTPP_EXPORTS when building DLL or GM_DLL_EXPORT= when building static."
 #   endif
 #endif
 
