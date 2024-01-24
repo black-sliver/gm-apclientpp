@@ -3,7 +3,7 @@
 This is work in progress.
 
 This contains GML (script) code to put into the game.
-Note that you have to run the code in [`_init.gml`](init.gml) on startup, or at latest before you first use apclient.
+Note that you have to run the code in [`_init.gml`](_init.gml) on startup, or at latest before you first use apclient.
 [`ap_init.gml`](ap_init.gml) sets up the DLL calls and constants and
 [`apclient_wrappers.gml`](apclient_wrappers.gml) provides GM functions for each DLL call.
 
