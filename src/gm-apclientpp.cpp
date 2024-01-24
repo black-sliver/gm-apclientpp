@@ -144,7 +144,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             std::string item_name = apclient->get_item_name(item.item, game);
             s +=
                 "global.arg_items[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
-                "global.arg_names[" + std::to_string(i) + "]='" + escape_string(item_name) + "';\r\n";
+                "global.arg_names[" + std::to_string(i) + "]='" + escape_string(item_name) + "';\r\n"
                 "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
                 "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n";
             i++;
