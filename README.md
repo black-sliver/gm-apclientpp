@@ -37,7 +37,7 @@ GM only has `number` and `string`, so the types listed below are defined as foll
 ## API
 
 Below are the possible calls from GM to DLL. The actual call uses `external_call`, but should be wrapped in a script
-with the same name, making the calls possible as listed below.
+with the same name, making the calls possible as listed below. See [gml/](gml/).
 
 We use the following notation below: `name(arg_name: arg_type, ...): return_type`
 
