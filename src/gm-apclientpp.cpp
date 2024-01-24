@@ -325,6 +325,13 @@ double apclient_get_player_number()
     return (double)apclient->get_player_number();
 }
 
+double apclient_get_team_number()
+{
+    if (!apclient)
+        return -1.;
+    return (double)apclient->get_team_number();
+}
+
 double apclient_get_hint_points()
 {
     if (!apclient)

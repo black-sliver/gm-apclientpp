@@ -51,6 +51,7 @@ extern "C" {
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_seed();
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_slot();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_player_number();
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_get_team_number();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_hint_points();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_hint_cost_points();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_hint_cost_percent();
