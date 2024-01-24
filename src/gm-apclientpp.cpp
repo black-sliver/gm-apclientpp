@@ -117,7 +117,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
     });
 
     apclient->set_slot_refused_handler([](const std::list<std::string>& reasons) {
-        std::string s = "global.arg_errors = [];\r\n";
+        std::string s;
         int i = 0;
         for (const auto& reason: reasons)
             s += "global.arg_errors[" + std::to_string(i++) + "]='" + escape_string(reason) + "';\r\n";
@@ -134,11 +134,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
 
     apclient->set_items_received_handler([](const std::list<APClient::NetworkItem>& items) {
         std::string game = apclient->get_player_game(apclient->get_player_number());
-        std::string s =
-            "global.arg_ids = [];\r\n"
-            "global.arg_names = [];\r\n"
-            "global.arg_flags = [];\r\n"
-            "global.arg_players = [];\r\n";
+        std::string s;
         int i = 0;
         for (const auto& item: items) {
             std::string item_name = apclient->get_item_name(item.item, game);
@@ -153,11 +149,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
     });
 
     apclient->set_location_info_handler([](const std::list<APClient::NetworkItem>& items) {
-        std::string s =
-            "global.arg_items = [];\r\n"
-            "global.arg_flags = [];\r\n"
-            "global.arg_players = [];\r\n"
-            "global.arg_locations = [];\r\n";
+        std::string s;
         int i = 0;
         for (const auto& item: items) {
             s +=
@@ -171,7 +163,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
     });
 
     apclient->set_location_checked_handler([](const std::list<int64_t>& locations) {
-        std::string s = "global.arg_ids = [];\r\n";
+        std::string s;
         int i = 0;
         for (const auto& location: locations)
             s += "global.arg_ids[" + std::to_string(i++) + "]=" + std::to_string(location) + ";\r\n";
@@ -375,8 +367,7 @@ const char* apclient_get_checked_locations()
     if (!apclient)
         return "{}";
     script =
-        "{\r\n"
-        "    global.ap_checked_locations = [];\r\n";
+        "{\r\n";
     int i = 0;
     for (const auto& location: apclient->get_checked_locations())
         script += "    global.ap_checked_locations[" + std::to_string(i++) + "]=" + std::to_string(location) + ";\r\n";
@@ -391,8 +382,7 @@ const char* apclient_get_missing_locations()
     if (!apclient)
         return "{}";
     script =
-        "{\r\n"
-        "    global.ap_missing_locations = [];\r\n";
+        "{\r\n";
     int i = 0;
     for (const auto& location: apclient->get_missing_locations())
         script += "    global.ap_missing_locations[" + std::to_string(i++) + "]=" + std::to_string(location) + ";\r\n";
