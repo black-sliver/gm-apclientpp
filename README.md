@@ -69,7 +69,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_get_team_number(): int` returns team number for connected player, or -1 if not connected yet.
 * `apclient_get_hint_points(): int` returns hint points for connected player.
 * `apclient_get_hint_cost_points(): int` returns hint cost in points (locations checked).
-* `apclient_get_hint_cost_precent(): int` returns hint cost in percent (% of locations checked).
+* `apclient_get_hint_cost_percent(): int` returns hint cost in percent (% of locations checked).
 * `apclient_is_data_package_valid(): bool` returns `true` if all strings for item and location names are available.
 * `apclient_get_server_time(): number`: returns the estimated server time stamp as floating point number.
    This may be useful for things like deathlink.
@@ -135,7 +135,7 @@ The following consts should be set up in the init:
 
 ## Events
 
-The script returned by `ap_poll` expects the following functions to exist in your scripts to handle events,
+The script returned by `apclient_poll` expects the following functions to exist in your scripts to handle events,
 so you need to define all of them:
 
 * `ap_room_info(data: json)` called when receiving RoomInfo from server, argument is currently unused (`'{}'`).
