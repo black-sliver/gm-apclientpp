@@ -207,19 +207,23 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
         });
 
         apclient->set_items_received_handler([](const std::list<APClient::NetworkItem>& items) {
+            if (items.empty())
+                return; // should never happen, but don't crash if it does
             std::string game = apclient->get_player_game(apclient->get_player_number());
             std::string s;
+            int index = items.front().index;
             int i = 0;
             for (const auto& item: items) {
                 std::string item_name = apclient->get_item_name(item.item, game);
                 s +=
-                    "global.arg_items[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
+                    "global.arg_ids[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
                     "global.arg_names[" + std::to_string(i) + "]='" + escape_string(item_name) + "';\r\n"
                     "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
                     "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n";
                 i++;
             };
-            s += "ap_location_info(" + std::to_string(i) + ");";
+            s += "ap_items_received(" + std::to_string(index) + ", " + std::to_string(i) + ");";
+            queue_script(s);
         });
 
         apclient->set_location_info_handler([](const std::list<APClient::NetworkItem>& items) {
@@ -234,6 +238,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                 i++;
             };
             s += "ap_location_info(" + std::to_string(i) + ");";
+            queue_script(s);
         });
 
         apclient->set_location_checked_handler([](const std::list<int64_t>& locations) {
