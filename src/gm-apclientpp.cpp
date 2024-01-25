@@ -374,7 +374,7 @@ const char* apclient_render_json(const char* json_str, double format)
 
     std::list<APClient::TextNode> msg;
     try {
-        from_json(json::parse(json_str), msg);
+        from_json(json::parse(json_str)["data"], msg);
     } catch (std::exception ex) {
         show_error(ex.what());
         return "";
