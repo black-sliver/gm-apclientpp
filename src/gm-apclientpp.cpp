@@ -76,22 +76,26 @@ static void replace_all(std::string& s, const std::string& from, const std::stri
     }
 }
 
-static void escape_inplace(std::string& s)
+static void escape_inplace(std::string& s, bool escape_pound = true, bool escape_quotes = true)
 {
-    // # -> \#
-    replace_all(s, "#", "\\#");
-    // \n -> #
-    replace_all(s, "\n", "#");
-    // \r -> nothing
-    replace_all(s, "\r", "");
-    // ' -> ' + "'" + '
-    replace_all(s, "'", "'+\"'\"+'");
+    if (escape_pound) {
+        // # -> \#
+        replace_all(s, "#", "\\#");
+        // \n -> #
+        replace_all(s, "\n", "#");
+        // \r -> nothing
+        replace_all(s, "\r", "");
+    }
+    if (escape_quotes) {
+        // ' -> ' + "'" + '
+        replace_all(s, "'", "'+\"'\"+'");
+    }
 }
 
-static std::string escape_string(const std::string& orig)
+static inline std::string escape_string(const std::string& orig, bool escape_pound = true, bool escape_quotes = true)
 {
    std::string s = orig;
-   escape_inplace(s);
+   escape_inplace(s, escape_pound, escape_quotes);
    return s;
 }
 
@@ -252,7 +256,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
 
         apclient->set_print_json_handler([](const json& command) {
             queue_script(
-                "j = '" + escape_string(command.dump()) + "';\r\n"
+                "j = '" + escape_string(command.dump(), false) + "';\r\n"
                 "ap_print_json(j);"
             );
         });
@@ -381,7 +385,7 @@ const char* apclient_render_json(const char* json_str, double format)
     }
 
     int int_format = (int)format;
-    result = apclient->render_json(msg, (APClient::RenderFormat)int_format);
+    result = escape_string(apclient->render_json(msg, (APClient::RenderFormat)int_format), true, false);
     return result.c_str();
 }
 
