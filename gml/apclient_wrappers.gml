@@ -124,7 +124,7 @@
 }
 #define apclient_connect_update
 {
-    return external_call(ext_apclient_connect_update)
+    return external_call(ext_apclient_connect_update, argument0)
 }
 #define apclient_sync
 {
