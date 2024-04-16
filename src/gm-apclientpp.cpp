@@ -668,3 +668,13 @@ double apclient_set_bounce_targets(const char* games_str, const char* slots_str,
     bounce_tags = tags_temp;
     return GM_TRUE;
 }
+
+double apclient_death_link(const char* cause)
+{
+    auto data_j = json{
+        {"time", apclient_get_server_time()},
+        {"source", apclient_get_slot()},
+    };
+    if (cause != "") data_j["cause"] = cause;
+    return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
+}

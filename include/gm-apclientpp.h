@@ -77,6 +77,7 @@ extern "C" {
     GM_DLL_EXPORT double GM_DLL_CALL apclient_location_scouts(const char* locations_json, double create_as_hint);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_bounce(const char* data_json);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_set_bounce_targets(const char* games_json, const char* slots_json, const char* tags_json);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_death_link(const char* cause);
 #ifdef __cplusplus
 }
 #endif
