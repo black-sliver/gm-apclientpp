@@ -675,6 +675,6 @@ double apclient_death_link(const char* cause)
         {"time", apclient_get_server_time()},
         {"source", apclient_get_slot()},
     };
-    if (cause != "") data_j["cause"] = cause;
+    if (cause && *cause) data_j["cause"] = cause;
     return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
 }
