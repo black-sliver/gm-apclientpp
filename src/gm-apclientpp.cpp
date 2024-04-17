@@ -659,7 +659,7 @@ double apclient_set_bounce_targets(const char* games_str, const char* slots_str,
     try {
         games_temp = json::parse(games_str).get<std::list<std::string>>();
         slots_temp = json::parse(slots_str).get<std::list<int>>();
-        tags_temp = json::parse(tags_str).get<std::list<std::string>>();;
+        tags_temp = json::parse(tags_str).get<std::list<std::string>>();
     }
     catch (std::exception ex) {
         show_error(ex.what());
