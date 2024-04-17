@@ -286,7 +286,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                     "j = '" + escape_string(command.dump(), false) + "';\r\n"
                     "ap_bounced(j);"
                 );
-                });
+            });
         }
 
         // start worker
@@ -633,7 +633,8 @@ double apclient_location_scouts(const char* locations_str, double create_as_hint
 
 double apclient_bounce(const char* data_str)
 {
-    if (api < 2) return GM_FALSE;
+    if (api < 2)
+        return GM_FALSE;
     const std::lock_guard<std::mutex> lock(mut);
     json data_j;
     try {
@@ -649,7 +650,8 @@ double apclient_bounce(const char* data_str)
 
 double apclient_set_bounce_targets(const char* games_str, const char* slots_str, const char* tags_str)
 {
-    if (api < 2) return GM_FALSE;
+    if (api < 2)
+        return GM_FALSE;
     const std::lock_guard<std::mutex> lock(mut);
     std::list<std::string> games_temp;
     std::list<int> slots_temp;
@@ -675,6 +677,7 @@ double apclient_death_link(const char* cause)
         {"time", apclient_get_server_time()},
         {"source", apclient_get_slot()},
     };
-    if (cause && *cause) data_j["cause"] = cause;
+    if (cause && *cause)
+        data_j["cause"] = cause;
     return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
 }
