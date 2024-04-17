@@ -41,9 +41,9 @@ static std::string script; // buffer for script result
 static APClient::Version client_version;
 static int items_handling = 0;
 static bool items_handling_changed = false;
-static std::list<std::string> bounce_games = {};
-static std::list<int> bounce_slots = {};
-static std::list<std::string> bounce_tags = {};
+static std::list<std::string> bounce_games;
+static std::list<int> bounce_slots;
+static std::list<std::string> bounce_tags;
 static std::thread worker;
 static std::mutex mut; // protect data access from two threads simultaneously
 static std::mutex connect_mutex; // protect connect/disconnect because worker is global
