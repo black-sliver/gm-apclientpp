@@ -679,5 +679,8 @@ double apclient_death_link(const char* cause)
     };
     if (cause && *cause)
         data_j["cause"] = cause;
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return GM_FALSE;
     return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
 }
