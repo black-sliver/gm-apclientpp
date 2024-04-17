@@ -44,7 +44,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 **Warning:** some of the functions will only return correct values after room info or when `is_data_package_valid()`
   returns true, typically it's safe to just wait until `ap_connected` event was called.
 
-* `apclient_init(api_version: int): bool` initialize the lib and set API version (currently `1`),
+* `apclient_init(api_version: int): bool` initialize the lib and set API version (where `1 <= api_version <= 2`),
    returns `true` on success.
 * `apclient_deinit(): bool` free all resources (kind of optional, but has to be called before a second `apclient_init`)
 * `apclient_connect(uuid: str, game: str, host: str): bool` start connecting to a server.
