@@ -59,4 +59,7 @@ ext_apclient_sync = external_define("gm-apclientpp.dll", "apclient_sync", dll_cd
 ext_apclient_status_update = external_define("gm-apclientpp.dll", "apclient_status_update", dll_cdecl, ty_real, 1, ty_real);
 ext_apclient_location_checks = external_define("gm-apclientpp.dll", "apclient_location_checks", dll_cdecl, ty_real, 1, ty_string);
 ext_apclient_location_scouts = external_define("gm-apclientpp.dll", "apclient_location_scouts", dll_cdecl, ty_real, 2, ty_string, ty_real);
+ext_apclient_bounce = external_define("gm-apclientpp.dll", "apclient_bounce", dll_cdecl, ty_real, 1, ty_string);
+ext_apclient_set_bounce_targets = external_define("gm-apclientpp.dll", "apclient_set_bounce_targets", dll_cdecl, ty_real, 3, ty_string, ty_string, ty_string);
+ext_apclient_death_link = external_define("gm-apclientpp.dll", "apclient_death_link", dll_cdecl, ty_real, 1, ty_string);
 

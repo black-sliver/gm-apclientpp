@@ -41,6 +41,9 @@ static std::string script; // buffer for script result
 static APClient::Version client_version;
 static int items_handling = 0;
 static bool items_handling_changed = false;
+static std::list<std::string> bounce_games;
+static std::list<int> bounce_slots;
+static std::list<std::string> bounce_tags;
 static std::thread worker;
 static std::mutex mut; // protect data access from two threads simultaneously
 static std::mutex connect_mutex; // protect connect/disconnect because worker is global
@@ -143,11 +146,14 @@ double apclient_init(double api_version)
     const std::lock_guard<std::mutex> lock(mut);
     if (api != 0) // already initialized
         return GM_FALSE;
-    if (api_version != 1) // unsupported api version
+    if (api_version < 1 or api_version > 2) // unsupported api version
         return GM_FALSE;
     api = api_version;
     client_version = {0, 4, 3};
     items_handling = 0;
+    bounce_games = {};
+    bounce_slots = {};
+    bounce_tags = {};
     return GM_TRUE;
 }
 
@@ -273,6 +279,15 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
         apclient->set_socket_error_handler([](const std::string& msg) {
             queue_script("ap_socket_error('" + escape_string(msg) + "');");
         });
+
+        if (api >= 2) {
+            apclient->set_bounced_handler([](const json& command) {
+                queue_script(
+                    "j = '" + escape_string(command.dump(), false) + "';\r\n"
+                    "ap_bounced(j);"
+                );
+            });
+        }
 
         // start worker
         worker = std::thread(apclient_impl_auto_poll);
@@ -614,4 +629,58 @@ double apclient_location_scouts(const char* locations_str, double create_as_hint
     }
 
     return GM_BOOL(apclient && apclient->LocationScouts(locations_j, (int)create_as_hint));
+}
+
+double apclient_bounce(const char* data_str)
+{
+    if (api < 2)
+        return GM_FALSE;
+    const std::lock_guard<std::mutex> lock(mut);
+    json data_j;
+    try {
+        data_j = json::parse(data_str);
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+
+    return GM_BOOL(apclient && apclient->Bounce(data_j, bounce_games, bounce_slots, bounce_tags));
+}
+
+double apclient_set_bounce_targets(const char* games_str, const char* slots_str, const char* tags_str)
+{
+    if (api < 2)
+        return GM_FALSE;
+    const std::lock_guard<std::mutex> lock(mut);
+    std::list<std::string> games_temp;
+    std::list<int> slots_temp;
+    std::list<std::string> tags_temp;
+    try {
+        games_temp = json::parse(games_str).get<std::list<std::string>>();
+        slots_temp = json::parse(slots_str).get<std::list<int>>();
+        tags_temp = json::parse(tags_str).get<std::list<std::string>>();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+    bounce_games = games_temp;
+    bounce_slots = slots_temp;
+    bounce_tags = tags_temp;
+    return GM_TRUE;
+}
+
+double apclient_death_link(const char* cause)
+{
+    auto data_j = json{
+        {"time", apclient_get_server_time()},
+        {"source", apclient_get_slot()},
+    };
+    if (cause && *cause)
+        data_j["cause"] = cause;
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return GM_FALSE;
+    return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
 }

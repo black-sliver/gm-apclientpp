@@ -142,3 +142,15 @@
 {
     return external_call(ext_apclient_location_scouts, argument0, argument1)
 }
+#define apclient_bounce
+{
+    return external_call(ext_apclient_bounce, argument0)
+}
+#define apclient_set_bounce_targets
+{
+    return external_call(ext_apclient_set_bounce_targets, argument0, argument1, argument2)
+}
+#define apclient_death_link
+{
+    return external_call(ext_apclient_death_link, argument0)
+}

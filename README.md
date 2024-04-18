@@ -44,7 +44,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 **Warning:** some of the functions will only return correct values after room info or when `is_data_package_valid()`
   returns true, typically it's safe to just wait until `ap_connected` event was called.
 
-* `apclient_init(api_version: int): bool` initialize the lib and set API version (currently `1`),
+* `apclient_init(api_version: int): bool` initialize the lib and set API version (where `1 <= api_version <= 2`),
    returns `true` on success.
 * `apclient_deinit(): bool` free all resources (kind of optional, but has to be called before a second `apclient_init`)
 * `apclient_connect(uuid: str, game: str, host: str): bool` start connecting to a server.
@@ -79,12 +79,22 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_get_missing_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_missing_locations: int[]` and `global.ap_missing_locations_len: int`
 
+The following calls are only implemented for `api_version >= 2`.
+
+* `apclient_bounce(data: json): bool` sends a Bounce with the provided data and the targets selected through
+   `apclient_set_bounce_targets`.
+* `apclient_death_link(cause: string): bool` sends a DeathLink Bounce with the provided cause, unless cause is an
+   empty string, in which case it will be omitted. The time and source are retrieved automatically. Targets selected
+   through `apclient_set_bounce_targets` will be ignored in favor of sending the Bounce only to the DeathLink tag.
+
 The following functions set variables that would normally be passed into another function, but can't be because of GM
 limitations.
 
 * `apclient_set_items_handling(items_handling: int): bool` set the items handling that will be passed to ConnectSlot
    and ConnectUpdate.
 * `apclient_set_version(ma: int, mi: int, r: int): bool` set the mod/client version that will be passed to ConnectSlot.
+* `apclient_set_bounce_targets(games: str[], slots: int[], tags: str[]): bool` set the games, slot IDs and tags that
+   will be passed to Bounce. Only for `api_version >= 2`.
 
 The following functions interact directly with the AP server and return `true` if the command was successfully queue,
 or false if the command was invalid or the connection was not established yet.
@@ -157,6 +167,7 @@ so you need to define all of them:
 * `ap_socket_disconnected()` network connection died, can't send things until reconnected.
 * `ap_socket_error(error: str)` network connection failed. Useful for debugging, but client will retry internally.
    Either keep a count of errors (abort for >2 failed attempts) or use a timeout for `ap_room_info` (abort after >5sec).
+* `ap_bounced(bounce: json)` called when receiving Bounced from server. Only for `api_version >= 2`.
 
 ### Not implemented
 
