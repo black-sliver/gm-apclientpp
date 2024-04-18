@@ -146,7 +146,7 @@ double apclient_init(double api_version)
     const std::lock_guard<std::mutex> lock(mut);
     if (api != 0) // already initialized
         return GM_FALSE;
-    if (api_version < 1 or api_version > 2) // unsupported api version
+    if (api_version < 1 || api_version > 2) // unsupported api version
         return GM_FALSE;
     api = api_version;
     client_version = {0, 4, 3};
