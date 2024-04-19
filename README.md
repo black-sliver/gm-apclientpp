@@ -33,6 +33,7 @@ GM only has `number` and `string`, so the types listed below are defined as foll
 * `json` is a `str` that is valid json. A json array is `'[...]'`, a json object is `'{...}'`.
 * `int[]` is either a `json` array of numbers (GM -> DLL) or a global array variable in GM (DLL -> GM)
 * `str[]` is either a `json` array of strings (GM -> DLL) or a global array variable in GM (DLL -> GM)
+* `double` is a `number` in GM, and a `double` in C.
 
 ## API
 
@@ -79,6 +80,27 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_get_missing_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_missing_locations: int[]` and `global.ap_missing_locations_len: int`
 
+Some of the events require the return of data that is difficult to represent directly in GM. To remedy this, the data is
+stored in JSON form and made accessible through function calls. If an event is received in response to `apclient_poll`,
+the following functions can be used to query its corresponding JSON data until the next call to `apclient_poll`.
+
+These functions take a `proxy`, which is an `int` that represents a location in the JSON data. When data is first
+accessed after an event only `proxy = 0` is available, which represents the root level. Some of these functions also take
+a `key`, which is the name of the element to be accessed. If the data at `proxy` is an array, then `key` must be a `str`
+representing a number equal to or greater than 0.
+
+* `apclient_json_proxy(proxy: int, key: str): int` returns a new `proxy`, making the data at `key` available through its use,
+   if `key` is not found at `proxy`, `-1` is returned instead.
+* `apclient_json_exists(proxy: int, key: str): bool` return `true` if `key` can be found at `proxy`.
+* `apclient_json_typeof(proxy: int): int` returns the type of `proxy`, which will be one of the JSON type constants set up
+   in init.
+* `apclient_json_size(proxy: int): int` returns the number of elements at `proxy`.
+* `apclient_json_get_string(proxy: int): str` if `proxy` is of type `AP_JSON_STRING`, returns its value.
+* `apclient_json_string_at(proxy: int, key: str): str` shorthand for `apclient_json_get_string(apclient_json_proxy(proxy, key))`.
+* `apclient_json_get_number(proxy: int): double` if `proxy` is of type `AP_JSON_NUMBER`, returns its value.
+* `apclient_json_number_at(proxy: int, key: str): double` shorthand for `apclient_json_get_number(apclient_json_proxy(proxy, key))`.
+* `apclient_json_dump(proxy: int): str` returns the `json` corresponding to `proxy`.
+
 The following calls are only implemented for `api_version >= 2`.
 
 * `apclient_bounce(data: json): bool` sends a Bounce with the provided data and the targets selected through
@@ -110,20 +132,20 @@ or false if the command was invalid or the connection was not established yet.
 * `apclient_location_scouts(locations: int[], create_as_hints: int): bool` sends LocationScouts.
    Wait for `location_info`event  to get the result.
 
-### TODO
-
-* A way to extract values from slot_data.
-
 ### Not implemented
 
-The following are not implemented for `api_version = 1`.
+The following are not implemented for `api_version <= 2`.
 Open for suggestions / requests.
 
 * `apclient_get_players(): List[NetWorkPlayer]` the return type of this is not easy to implement in GM.
-* `apclient_bounce(...): bool` not sure about the API and `bounced` event isn't implemented yet either.
 * `apclient_get(...): bool` data storage / GetReply and Received not implemented yet
 * `apclient_set_notify(...): bool` as above
 * `apclient_set(...): bool` as above
+
+The following are not implemented for `api_version = 1`.
+
+* `apclient_bounce(...): bool` not sure about the API and `bounced` event isn't implemented yet either.
+
 
 ## Constants
 
@@ -142,6 +164,12 @@ The following consts should be set up in the init:
 * `global.AP_CLIENT_STATUS_PLAYING = 20` - player is playing their game (as above)
 * `global.AP_CLIENT_STATUS_GOAL = 30` - player reached their goal.
    Use this in `apclient_status_update` on goal completion.
+* `global.AP_JSON_MISSING = -1` - returned by `apclient_json_typeof` when failing to determine the type.
+* `global.AP_JSON_OBJECT = 0` - returned by `apclient_json_typeof` when the value at `proxy` is a json object.
+* `global.AP_JSON_ARRAY = 1` - returned by `apclient_json_typeof` when the value at `proxy` is an array.
+* `global.AP_JSON_STRING = 2` - returned by `apclient_json_typeof` when the value at `proxy` is compatible with `string`.
+* `global.AP_JSON_NUMBER = 3` - returned by `apclient_json_typeof` when the value at `proxy` is compatible with `number`.
+* `global.AP_JSON_NULL = 4` - returned by `apclient_json_typeof` when the value at `proxy` is `null`.
 
 ## Events
 
@@ -169,10 +197,23 @@ so you need to define all of them:
    Either keep a count of errors (abort for >2 failed attempts) or use a timeout for `ap_room_info` (abort after >5sec).
 * `ap_bounced(bounce: json)` called when receiving Bounced from server. Only for `api_version >= 2`.
 
+These events also make the following JSON data available through the `apclient_json_...` calls:
+
+* `ap_slot_refused` { "len": `int`, "reasons" : `str[]` }
+* `ap_slot_connected` "slot_data" of [Connected](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#connected)
+* `ap_items_received` { "index": `int`, "len": `int`, "ids": `int[]`, "names": `str[]`, "flags": `int[]`, "players": `int[]`, "locations": `int[]` }
+* `ap_location_info` { "len": `int`, "items": `int[]`, "flags": `int[]`, "players": `int[]`, "locations": `int[]` }
+* `ap_location_checked` { "len": `int`, "locations": `int[]` }
+* `ap_print_json` see [PrintJSON](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#printjson)
+* `ap_bounced` see [Bounced](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#bounced)
+
 ### Not implemented
+
+The following are not implemented for `api_version <= 2`.
+
+* `ap_retrieved(...)` result for `apclient_get`
+* `ap_set_reply(...)` when a player sent a Set that matches your SetNotify
 
 The following are not implemented for `api_version = 1`.
 
 * `ap_bounced(...)` when a player sent a Bounce
-* `ap_retrieved(...)` result for `apclient_get`
-* `ap_set_reply(...)` when a player sent a Set that matches your SetNotify
