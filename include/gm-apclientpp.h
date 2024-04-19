@@ -66,6 +66,7 @@ extern "C" {
 
     GM_DLL_EXPORT double GM_DLL_CALL apclient_set_items_handling(double items_handling);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_set_version(double major, double minor, double revision);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_set_bounce_targets(const char* games_json, const char* slots_json, const char* tags_json);
 
     GM_DLL_EXPORT double GM_DLL_CALL apclient_say(const char* message);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_connect_slot(const char* name, const char* password, const char* tags);
@@ -76,8 +77,18 @@ extern "C" {
     GM_DLL_EXPORT double GM_DLL_CALL apclient_location_checks(const char* locations_json);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_location_scouts(const char* locations_json, double create_as_hint);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_bounce(const char* data_json);
-    GM_DLL_EXPORT double GM_DLL_CALL apclient_set_bounce_targets(const char* games_json, const char* slots_json, const char* tags_json);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_death_link(const char* cause);
+
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_proxy(const double proxy, const char* key);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_exists(const double proxy, const char* key);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_typeof(const double proxy);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_size(const double proxy);
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_json_get_string(const double proxy);
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_json_string_at(const double proxy, const char* key);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_get_number(const double proxy);
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_json_number_at(const double proxy, const char* key);
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_json_dump(const double proxy);
+
 #ifdef __cplusplus
 }
 #endif

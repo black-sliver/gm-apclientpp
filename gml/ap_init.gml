@@ -13,6 +13,13 @@ global.AP_CLIENT_STATUS_UNKNOWN = 0 // default status
 global.AP_CLIENT_STATUS_READY = 10 // player is ready to play (setting this is optional at the moment)
 global.AP_CLIENT_STATUS_PLAYING = 20 // player is playing their game (as above)
 global.AP_CLIENT_STATUS_GOAL = 30 // player reached their goal. Use this in apclient_status_update on goal completion.
+// json type results from apclient_json_typeof
+global.AP_JSON_MISSING = -1
+global.AP_JSON_OBJECT = 0
+global.AP_JSON_ARRAY = 1
+global.AP_JSON_STRING = 2
+global.AP_JSON_NUMBER = 3
+global.AP_JSON_NULL = 4
 
 globalvar ext_apclient_init, ext_apclient_deinit, ext_apclient_connect, ext_apclient_poll, ext_apclient_disconnect, ext_apclient_reset, ext_apclient_get_player_alias,
     ext_apclient_get_player_game, ext_apclient_get_location_name, ext_apclient_get_location_id, ext_apclient_get_item_name, ext_apclient_get_item_id,
@@ -62,4 +69,13 @@ ext_apclient_location_scouts = external_define("gm-apclientpp.dll", "apclient_lo
 ext_apclient_bounce = external_define("gm-apclientpp.dll", "apclient_bounce", dll_cdecl, ty_real, 1, ty_string);
 ext_apclient_set_bounce_targets = external_define("gm-apclientpp.dll", "apclient_set_bounce_targets", dll_cdecl, ty_real, 3, ty_string, ty_string, ty_string);
 ext_apclient_death_link = external_define("gm-apclientpp.dll", "apclient_death_link", dll_cdecl, ty_real, 1, ty_string);
+ext_apclient_json_proxy = external_define("gm-apclientpp.dll", "apclient_json_proxy", dll_cdecl, ty_real, 2, ty_real, ty_string);
+ext_apclient_json_exists = external_define("gm-apclientpp.dll", "apclient_json_exists", dll_cdecl, ty_real, 2, ty_real, ty_string);
+ext_apclient_json_typeof = external_define("gm-apclientpp.dll", "apclient_json_typeof", dll_cdecl, ty_real, 1, ty_real);
+ext_apclient_json_size = external_define("gm-apclientpp.dll", "apclient_json_size", dll_cdecl, ty_real, 1, ty_real);
+ext_apclient_json_get_string = external_define("gm-apclientpp.dll", "apclient_json_get_string", dll_cdecl, ty_string, 1, ty_real);
+ext_apclient_json_string_at = external_define("gm-apclientpp.dll", "apclient_json_string_at", dll_cdecl, ty_string, 2, ty_real, ty_string);
+ext_apclient_json_get_number = external_define("gm-apclientpp.dll", "apclient_json_get_number", dll_cdecl, ty_real, 1, ty_real);
+ext_apclient_json_number_at = external_define("gm-apclientpp.dll", "apclient_json_number_at", dll_cdecl, ty_real, 2, ty_real, ty_string);
+ext_apclient_json_dump = external_define("gm-apclientpp.dll", "apclient_json_dump", dll_cdecl, ty_string, 1, ty_real);
 

@@ -29,6 +29,13 @@
 #define GM_FALSE (0.)
 #define GM_TRUE (1.)
 #define GM_BOOL(cond) ((cond) ? GM_TRUE : GM_FALSE)
+#define JSON_MISSING -1.
+#define JSON_OBJECT 0.
+#define JSON_ARRAY 1.
+#define JSON_STRING 2.
+#define JSON_NUMBER 3.
+#define JSON_NULL 4.
+#define poll_event std::pair<std::string, json>
 
 using json = nlohmann::json;
 
@@ -36,8 +43,9 @@ using json = nlohmann::json;
 static int api = 0;
 static std::unique_ptr<APClient> apclient;
 static std::string result; // buffer for string results of simple functions
-static std::queue<std::string> queue; // queue of events to run on poll
+static std::queue<poll_event> queue; // queue of events to run on poll
 static std::string script; // buffer for script result
+static std::vector<json> script_data;  // buffer for script data
 static APClient::Version client_version;
 static int items_handling = 0;
 static bool items_handling_changed = false;
@@ -64,9 +72,9 @@ static void from_json(const json& j, std::list<APClient::TextNode>& nodes) {
     }
 }
 
-static void queue_script(const std::string& commands)
+static void queue_script(const std::string& commands, const json& data = {})
 {
-    queue.push("{\r\n" + commands + "\r\n}");
+    queue.push(poll_event{ "{\r\n" + commands + "\r\n}" , data });
 }
 
 static void replace_all(std::string& s, const std::string& from, const std::string& to) {
@@ -104,13 +112,13 @@ static inline std::string escape_string(const std::string& orig, bool escape_pou
 
 static void show_error(const std::string& error)
 {
-    queue_script("show_message('Error: " + escape_string(error) + "');");
+    queue_script("show_message('Error: " + escape_string(error) + "');", error);
 }
 
 
 static void apclient_impl_reset()
 {
-    queue = std::queue<std::string>();
+    queue = std::queue<std::pair<std::string, json>>();
     if (apclient)
         apclient->reset();
 }
@@ -206,13 +214,18 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             for (const auto& reason: reasons)
                 s += "global.arg_errors[" + std::to_string(i++) + "]='" + escape_string(reason) + "';\r\n";
             s += "ap_slot_refused(" + std::to_string(i) + ");";
-            queue_script(s);
+            auto j = json{
+                { "reasons", reasons },
+                { "len", i }
+            };
+            queue_script(s, j);
         });
 
         apclient->set_slot_connected_handler([](const json& slot_data) {
             queue_script(
                 "j = '" + escape_string(slot_data.dump()) + "';\r\n"
-                "ap_slot_connected(j);"
+                "ap_slot_connected(j);",
+                slot_data
             );
         });
 
@@ -222,23 +235,33 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             std::string game = apclient->get_player_game(apclient->get_player_number());
             std::string s;
             int index = items.front().index;
+            auto j = json{
+                { "index", index }
+            };
             int i = 0;
             for (const auto& item: items) {
-                std::string item_name = apclient->get_item_name(item.item, game);
+                std::string item_name = escape_string(apclient->get_item_name(item.item, game));
                 s +=
                     "global.arg_ids[" + std::to_string(i) + "]=" + std::to_string(item.item) + ";\r\n"
-                    "global.arg_names[" + std::to_string(i) + "]='" + escape_string(item_name) + "';\r\n"
+                    "global.arg_names[" + std::to_string(i) + "]='" + item_name + "';\r\n"
                     "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
                     "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n"
                     "global.arg_locations[" + std::to_string(i) + "]=" + std::to_string(item.location) + ";\r\n";
+                j["ids"][i] = item.item;
+                j["names"][i] = item_name;
+                j["flags"][i] = item.flags;
+                j["players"][i] = item.player;
+                j["locations"][i] = item.location;
                 i++;
             };
             s += "ap_items_received(" + std::to_string(index) + ", " + std::to_string(i) + ");";
-            queue_script(s);
+            j["len"] = i;
+            queue_script(s, j);
         });
 
         apclient->set_location_info_handler([](const std::list<APClient::NetworkItem>& items) {
             std::string s;
+            auto j = json{};
             int i = 0;
             for (const auto& item: items) {
                 s +=
@@ -246,10 +269,15 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                     "global.arg_flags[" + std::to_string(i) + "]=" + std::to_string(item.flags) + ";\r\n"
                     "global.arg_players[" + std::to_string(i) + "]=" + std::to_string(item.player) + ";\r\n"
                     "global.arg_locations[" + std::to_string(i) + "]=" + std::to_string(item.location) + ";\r\n";
+                j["items"][i] = item.item;
+                j["flags"][i] = item.flags;
+                j["players"][i] = item.player;
+                j["locations"][i] = item.location;
                 i++;
             };
             s += "ap_location_info(" + std::to_string(i) + ");";
-            queue_script(s);
+            j["len"] = i;
+            queue_script(s, j);
         });
 
         apclient->set_location_checked_handler([](const std::list<int64_t>& locations) {
@@ -258,13 +286,18 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             for (const auto& location: locations)
                 s += "global.arg_ids[" + std::to_string(i++) + "]=" + std::to_string(location) + ";\r\n";
             s += "ap_location_checked(" + std::to_string(i) + ");";
-            queue_script(s);
+            auto j = json{
+                { "locations", locations},
+                { "len", i }
+            };
+            queue_script(s, j);
         });
 
         apclient->set_print_json_handler([](const json& command) {
             queue_script(
                 "j = '" + escape_string(command.dump(), false) + "';\r\n"
-                "ap_print_json(j);"
+                "ap_print_json(j);",
+                command
             );
         });
 
@@ -277,14 +310,15 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
         });
 
         apclient->set_socket_error_handler([](const std::string& msg) {
-            queue_script("ap_socket_error('" + escape_string(msg) + "');");
+            queue_script("ap_socket_error('" + escape_string(msg) + "');", msg);
         });
 
         if (api >= 2) {
             apclient->set_bounced_handler([](const json& command) {
                 queue_script(
                     "j = '" + escape_string(command.dump(), false) + "';\r\n"
-                    "ap_bounced(j);"
+                    "ap_bounced(j);",
+                    command
                 );
             });
         }
@@ -328,7 +362,8 @@ const char* apclient_poll()
     if (queue.empty()) {
         script = "{}";
     } else {
-        script = std::move(queue.front());
+        script = std::move(queue.front().first);
+        script_data = { queue.front().second };
         queue.pop();
     }
     return script.c_str();
@@ -683,4 +718,193 @@ double apclient_death_link(const char* cause)
     if (!apclient)
         return GM_FALSE;
     return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
+}
+
+inline int key_to_int(const char* key) {
+    int i = 0;
+    while (*key) {
+        i *= 10;
+        i += *key++ - '0';
+    }
+    return i;
+}
+
+double apclient_json_proxy(const double proxy, const char* key)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    try {
+        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
+            int i = key_to_int(key);
+            if (i >= 0 && i < script_data[int_proxy].size())
+                script_data.push_back(script_data[int_proxy][i]); // add new proxy data
+            else
+                return -1;
+        }
+        else if (script_data[int_proxy].contains(key))
+            script_data.push_back(script_data[int_proxy][key]); // add new proxy data
+        else
+            return -1;
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return -1;
+    }
+    return script_data.size() - 1; // new proxy is always the index of the last element
+}
+
+double apclient_json_exists(const double proxy, const char* key)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    bool found;
+    try {
+        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
+            int i = key_to_int(key);
+            found = i >= 0 && i < script_data[int_proxy].size();
+        }
+        else
+            found = script_data[int_proxy].contains(key);
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return GM_FALSE;
+    }
+    return GM_BOOL(found);
+}
+
+double apclient_json_typeof(const double proxy)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    json::value_t value_type;
+    double final_type;
+    try {
+        value_type = script_data[int_proxy].type();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return JSON_MISSING;
+    }
+    switch (value_type) {
+    case json::value_t::object:
+        final_type = JSON_OBJECT;
+        break;
+    case json::value_t::array:
+    case json::value_t::binary:
+        final_type = JSON_ARRAY;
+        break;
+    case json::value_t::string:
+        final_type = JSON_STRING;
+        break;
+    case json::value_t::number_float:
+    case json::value_t::number_integer:
+    case json::value_t::number_unsigned:
+    case json::value_t::boolean:
+        final_type = JSON_NUMBER;
+        break;
+    case json::value_t::null:
+        final_type = JSON_NULL;
+        break;
+    default:
+        final_type = JSON_MISSING;
+        break;
+    }
+    return final_type;
+}
+
+double apclient_json_size(const double proxy)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    int size;
+    try {
+        size = script_data[int_proxy].size();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return -1.;
+    }
+    return size;
+}
+
+const char* apclient_json_get_string(const double proxy)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    try {
+        result = script_data[int_proxy].template get<std::string>();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return "";
+    }
+    result = escape_string(result, true, false);
+    return result.c_str();
+}
+
+const char* apclient_json_string_at(const double proxy, const char* key)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    try {
+        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
+            result = script_data[int_proxy][key_to_int(key)].template get<std::string>();
+        else
+            result = script_data[int_proxy][key].template get<std::string>();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return "";
+    }
+    result = escape_string(result, true, false);
+    return result.c_str();
+}
+
+double apclient_json_get_number(const double proxy)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    double value;
+    try {
+        value = script_data[int_proxy].template get<double>();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return 0.;
+    }
+    return value;
+}
+
+double apclient_json_number_at(const double proxy, const char* key)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    double value;
+    try {
+        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
+            value = script_data[int_proxy][key_to_int(key)].template get<double>();
+        else
+            value = script_data[int_proxy][key].template get<double>();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return 0.;
+    }
+    return value;
+}
+
+const char* apclient_json_dump(const double proxy)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    unsigned int int_proxy = (int)proxy;
+    try {
+        result = script_data[int_proxy].dump();
+    }
+    catch (std::exception ex) {
+        show_error(ex.what());
+        return "";
+    }
+    result = escape_string(result, false, false);
+    return result.c_str();
 }
