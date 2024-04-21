@@ -720,19 +720,18 @@ double apclient_death_link(const char* cause)
     return GM_BOOL(apclient && apclient->Bounce(data_j, {}, {}, { "DeathLink" }));
 }
 
-inline int key_to_int(const char* key) {
-    int i = 0;
-    while (*key) {
-        i *= 10;
-        i += *key++ - '0';
-    }
-    return i;
+static inline json::size_type key_to_index(const char* key)
+{
+    if (sizeof(json::size_type) > sizeof(unsigned long))
+        return (json::size_type)std::strtoull(key, nullptr, 10);
+    else
+        return (json::size_type)std::strtoul(key, nullptr, 10);
 }
 
 double apclient_json_proxy(const double proxy, const char* key)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     try {
         if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
             int i = key_to_int(key);
@@ -756,7 +755,7 @@ double apclient_json_proxy(const double proxy, const char* key)
 double apclient_json_exists(const double proxy, const char* key)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     bool found;
     try {
         if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
@@ -776,7 +775,7 @@ double apclient_json_exists(const double proxy, const char* key)
 double apclient_json_typeof(const double proxy)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     json::value_t value_type;
     double final_type;
     try {
@@ -816,8 +815,8 @@ double apclient_json_typeof(const double proxy)
 double apclient_json_size(const double proxy)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
-    int size;
+    size_t int_proxy = (size_t)proxy;
+    json::size_type size;
     try {
         size = script_data[int_proxy].size();
     }
@@ -831,7 +830,7 @@ double apclient_json_size(const double proxy)
 const char* apclient_json_get_string(const double proxy)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     try {
         result = script_data[int_proxy].template get<std::string>();
     }
@@ -846,7 +845,7 @@ const char* apclient_json_get_string(const double proxy)
 const char* apclient_json_string_at(const double proxy, const char* key)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     try {
         if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
             result = script_data[int_proxy][key_to_int(key)].template get<std::string>();
@@ -864,7 +863,7 @@ const char* apclient_json_string_at(const double proxy, const char* key)
 double apclient_json_get_number(const double proxy)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     double value;
     try {
         value = script_data[int_proxy].template get<double>();
@@ -879,7 +878,7 @@ double apclient_json_get_number(const double proxy)
 double apclient_json_number_at(const double proxy, const char* key)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     double value;
     try {
         if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
@@ -897,7 +896,7 @@ double apclient_json_number_at(const double proxy, const char* key)
 const char* apclient_json_dump(const double proxy)
 {
     const std::lock_guard<std::mutex> lock(mut);
-    unsigned int int_proxy = (int)proxy;
+    size_t int_proxy = (size_t)proxy;
     try {
         result = script_data[int_proxy].dump();
     }
