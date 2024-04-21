@@ -205,6 +205,7 @@ These events also make the following JSON data available through the `apclient_j
 * `ap_location_info` { "len": `int`, "items": `int[]`, "flags": `int[]`, "players": `int[]`, "locations": `int[]` }
 * `ap_location_checked` { "len": `int`, "locations": `int[]` }
 * `ap_print_json` see [PrintJSON](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#printjson)
+* `ap_socket_error` { "message": `str` }
 * `ap_bounced` see [Bounced](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#bounced)
 
 ### Not implemented
