@@ -210,6 +210,14 @@ These events also make the following JSON data available through the `apclient_j
 * `ap_socket_error` { "message": `str` }
 * `ap_bounced` see [Bounced](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#bounced)
 
+Additionally, these built-in GM functions may be called by an `apclient_poll` script:
+
+* `show_message(message: str): none` when an exception occurs.
+
+If this happens, the following JSON data is made avalaible:
+
+* `show_message` { "message": `str` }
+
 ### Not implemented
 
 The following are not implemented.
