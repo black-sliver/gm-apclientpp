@@ -134,7 +134,7 @@ or false if the command was invalid or the connection was not established yet.
 
 ### Not implemented
 
-The following are not implemented for `api_version <= 2`.
+The following are not implemented.
 Open for suggestions / requests.
 
 * `apclient_get_players(): List[NetWorkPlayer]` the return type of this is not easy to implement in GM.
@@ -142,7 +142,7 @@ Open for suggestions / requests.
 * `apclient_set_notify(...): bool` as above
 * `apclient_set(...): bool` as above
 
-The following are not implemented for `api_version = 1`.
+The following are only implemented for `api_version >= 2`.
 
 * `apclient_bounce(...): bool` not sure about the API and `bounced` event isn't implemented yet either.
 
@@ -209,11 +209,11 @@ These events also make the following JSON data available through the `apclient_j
 
 ### Not implemented
 
-The following are not implemented for `api_version <= 2`.
+The following are not implemented.
 
 * `ap_retrieved(...)` result for `apclient_get`
 * `ap_set_reply(...)` when a player sent a Set that matches your SetNotify
 
-The following are not implemented for `api_version = 1`.
+The following are only implemented for `api_version >= 2`.
 
 * `ap_bounced(...)` when a player sent a Bounce
