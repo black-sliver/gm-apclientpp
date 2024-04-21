@@ -190,3 +190,7 @@
 {
     return external_call(ext_apclient_json_dump, argument0)
 }
+#define apclient_json_source
+{
+    return external_call(ext_apclient_json_source)
+}

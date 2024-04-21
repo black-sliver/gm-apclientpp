@@ -88,6 +88,7 @@ extern "C" {
     GM_DLL_EXPORT double GM_DLL_CALL apclient_json_get_number(const double proxy);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_json_number_at(const double proxy, const char* key);
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_json_dump(const double proxy);
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_json_source();
 
 #ifdef __cplusplus
 }

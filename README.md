@@ -102,6 +102,7 @@ representing a number equal to or greater than 0.
 * `apclient_json_get_number(proxy: int): double` if `proxy` is of type `AP_JSON_NUMBER`, returns its value.
 * `apclient_json_number_at(proxy: int, key: str): double` shorthand for `apclient_json_get_number(apclient_json_proxy(proxy, key))`.
 * `apclient_json_dump(proxy: int): str` returns the `json` corresponding to `proxy`.
+* `apclient_json_source(): str` returns the name of the event that made the data available.
 
 The following calls are only implemented for `api_version >= 2`.
 

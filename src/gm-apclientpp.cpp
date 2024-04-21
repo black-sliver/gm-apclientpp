@@ -40,6 +40,7 @@ using json = nlohmann::json;
 
 typedef struct {
     std::string script;
+    std::string script_name;
     json script_data;
 } PollEvent;
 
@@ -49,6 +50,7 @@ static std::unique_ptr<APClient> apclient;
 static std::string result; // buffer for string results of simple functions
 static std::queue<PollEvent> queue; // queue of events to run on poll
 static std::string script; // buffer for script result
+static std::string script_name; // buffer for the script's name
 static std::vector<json> script_data;  // buffer for script data
 static APClient::Version client_version;
 static int items_handling = 0;
@@ -76,9 +78,9 @@ static void from_json(const json& j, std::list<APClient::TextNode>& nodes) {
     }
 }
 
-static void queue_script(const std::string& commands, const json& data = {})
+static void queue_script(const std::string& commands, const std::string& name, const json& data = {})
 {
-    queue.push(poll_event{ "{\r\n" + commands + "\r\n}" , data });
+    queue.push(PollEvent{ "{\r\n" + commands + "\r\n}", name , data });
 }
 
 static void replace_all(std::string& s, const std::string& from, const std::string& to) {
@@ -116,7 +118,7 @@ static inline std::string escape_string(const std::string& orig, bool escape_pou
 
 static void show_error(const std::string& error)
 {
-    queue_script("show_message('Error: " + escape_string(error) + "');", error);
+    queue_script("show_message('Error: " + escape_string(error) + "');", "show_message", json{ {"message", error} });
 }
 
 
@@ -208,7 +210,8 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
         apclient->set_room_info_handler([]() {
             queue_script(
                 "j = '{}';\r\n" // currently we don't pass anything from room info
-                "ap_room_info(j);"
+                "ap_room_info(j);",
+                "ap_room_info"
             );
         });
 
@@ -222,13 +225,14 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                 { "reasons", reasons },
                 { "len", i }
             };
-            queue_script(s, j);
+            queue_script(s, "ap_slot_refused", j);
         });
 
         apclient->set_slot_connected_handler([](const json& slot_data) {
             queue_script(
                 "j = '" + escape_string(slot_data.dump()) + "';\r\n"
                 "ap_slot_connected(j);",
+                "ap_slot_connected",
                 slot_data
             );
         });
@@ -260,7 +264,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             };
             s += "ap_items_received(" + std::to_string(index) + ", " + std::to_string(i) + ");";
             j["len"] = i;
-            queue_script(s, j);
+            queue_script(s, "ap_items_received", j);
         });
 
         apclient->set_location_info_handler([](const std::list<APClient::NetworkItem>& items) {
@@ -281,7 +285,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
             };
             s += "ap_location_info(" + std::to_string(i) + ");";
             j["len"] = i;
-            queue_script(s, j);
+            queue_script(s, "ap_location_info", j);
         });
 
         apclient->set_location_checked_handler([](const std::list<int64_t>& locations) {
@@ -294,27 +298,28 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                 { "locations", locations},
                 { "len", i }
             };
-            queue_script(s, j);
+            queue_script(s, "ap_location_checked", j);
         });
 
         apclient->set_print_json_handler([](const json& command) {
             queue_script(
                 "j = '" + escape_string(command.dump(), false) + "';\r\n"
                 "ap_print_json(j);",
+                "ap_print_json",
                 command
             );
         });
 
         apclient->set_socket_connected_handler([]() {
-            queue_script("ap_socket_connected();");
+            queue_script("ap_socket_connected();", "ap_socket_connected");
         });
 
         apclient->set_socket_disconnected_handler([]() {
-            queue_script("ap_socket_disconnected();");
+            queue_script("ap_socket_disconnected();", "ap_socket_disconnected");
         });
 
         apclient->set_socket_error_handler([](const std::string& msg) {
-            queue_script("ap_socket_error('" + escape_string(msg) + "');", msg);
+            queue_script("ap_socket_error('" + escape_string(msg) + "');", "ap_socket_error", json{ {"message", msg} });
         });
 
         if (api >= 2) {
@@ -322,6 +327,7 @@ double apclient_connect(const char* uuid, const char* game, const char* host)
                 queue_script(
                     "j = '" + escape_string(command.dump(), false) + "';\r\n"
                     "ap_bounced(j);",
+                    "ap_bounced",
                     command
                 );
             });
@@ -361,15 +367,18 @@ const char* apclient_poll()
 {
     const std::lock_guard<std::mutex> lock(mut);
     if (!apclient) {
+        script_name = "";
         script_data = {};
         return "{}";
     }
     apclient->poll();
     if (queue.empty()) {
         script = "{}";
+        script_name = "";
         script_data = {};
     } else {
         script = std::move(queue.front().script);
+        script_name = std::move(queue.front().script_name);
         script_data = { std::move(queue.front().script_data) };
         queue.pop();
     }
@@ -904,4 +913,12 @@ const char* apclient_json_dump(const double proxy)
     }
     result = escape_string(result, false, false);
     return result.c_str();
+}
+
+const char* apclient_json_source()
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return "";
+    return script_name.c_str();
 }

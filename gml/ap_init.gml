@@ -78,4 +78,5 @@ ext_apclient_json_string_at = external_define("gm-apclientpp.dll", "apclient_jso
 ext_apclient_json_get_number = external_define("gm-apclientpp.dll", "apclient_json_get_number", dll_cdecl, ty_real, 1, ty_real);
 ext_apclient_json_number_at = external_define("gm-apclientpp.dll", "apclient_json_number_at", dll_cdecl, ty_real, 2, ty_real, ty_string);
 ext_apclient_json_dump = external_define("gm-apclientpp.dll", "apclient_json_dump", dll_cdecl, ty_string, 1, ty_real);
+ext_apclient_json_source = external_define("gm-apclientpp.dll", "apclient_json_source", dll_cdecl, ty_string, 0);
 
