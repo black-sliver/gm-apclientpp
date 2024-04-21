@@ -733,17 +733,10 @@ double apclient_json_proxy(const double proxy, const char* key)
     const std::lock_guard<std::mutex> lock(mut);
     size_t int_proxy = (size_t)proxy;
     try {
-        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
-            int i = key_to_int(key);
-            if (i >= 0 && i < script_data[int_proxy].size())
-                script_data.push_back(script_data[int_proxy][i]); // add new proxy data
-            else
-                return -1;
-        }
-        else if (script_data[int_proxy].contains(key))
-            script_data.push_back(script_data[int_proxy][key]); // add new proxy data
+        if (script_data.at(int_proxy).is_array() || script_data.at(int_proxy).is_binary())
+            script_data.push_back(script_data.at(int_proxy).at(key_to_index(key))); // add new proxy data
         else
-            return -1;
+            script_data.push_back(script_data.at(int_proxy).at(key)); // add new proxy data
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -758,12 +751,10 @@ double apclient_json_exists(const double proxy, const char* key)
     size_t int_proxy = (size_t)proxy;
     bool found;
     try {
-        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary()) {
-            int i = key_to_int(key);
-            found = i >= 0 && i < script_data[int_proxy].size();
-        }
+        if (script_data.at(int_proxy).is_array() || script_data.at(int_proxy).is_binary())
+            found = script_data.at(int_proxy).size() > key_to_index(key);
         else
-            found = script_data[int_proxy].contains(key);
+            found = script_data.at(int_proxy).contains(key);
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -779,7 +770,7 @@ double apclient_json_typeof(const double proxy)
     json::value_t value_type;
     double final_type;
     try {
-        value_type = script_data[int_proxy].type();
+        value_type = script_data.at(int_proxy).type();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -818,7 +809,7 @@ double apclient_json_size(const double proxy)
     size_t int_proxy = (size_t)proxy;
     json::size_type size;
     try {
-        size = script_data[int_proxy].size();
+        size = script_data.at(int_proxy).size();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -832,7 +823,7 @@ const char* apclient_json_get_string(const double proxy)
     const std::lock_guard<std::mutex> lock(mut);
     size_t int_proxy = (size_t)proxy;
     try {
-        result = script_data[int_proxy].template get<std::string>();
+        result = script_data.at(int_proxy).template get<std::string>();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -847,10 +838,10 @@ const char* apclient_json_string_at(const double proxy, const char* key)
     const std::lock_guard<std::mutex> lock(mut);
     size_t int_proxy = (size_t)proxy;
     try {
-        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
-            result = script_data[int_proxy][key_to_int(key)].template get<std::string>();
+        if (script_data.at(int_proxy).is_array() || script_data.at(int_proxy).is_binary())
+            result = script_data.at(int_proxy).at(key_to_index(key)).template get<std::string>();
         else
-            result = script_data[int_proxy][key].template get<std::string>();
+            result = script_data.at(int_proxy).at(key).template get<std::string>();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -866,7 +857,7 @@ double apclient_json_get_number(const double proxy)
     size_t int_proxy = (size_t)proxy;
     double value;
     try {
-        value = script_data[int_proxy].template get<double>();
+        value = script_data.at(int_proxy).template get<double>();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -881,10 +872,10 @@ double apclient_json_number_at(const double proxy, const char* key)
     size_t int_proxy = (size_t)proxy;
     double value;
     try {
-        if (script_data[int_proxy].is_array() || script_data[int_proxy].is_binary())
-            value = script_data[int_proxy][key_to_int(key)].template get<double>();
+        if (script_data.at(int_proxy).is_array() || script_data.at(int_proxy).is_binary())
+            value = script_data.at(int_proxy).at(key_to_index(key)).template get<double>();
         else
-            value = script_data[int_proxy][key].template get<double>();
+            value = script_data.at(int_proxy).at(key).template get<double>();
     }
     catch (std::exception ex) {
         show_error(ex.what());
@@ -898,7 +889,7 @@ const char* apclient_json_dump(const double proxy)
     const std::lock_guard<std::mutex> lock(mut);
     size_t int_proxy = (size_t)proxy;
     try {
-        result = script_data[int_proxy].dump();
+        result = script_data.at(int_proxy).dump();
     }
     catch (std::exception ex) {
         show_error(ex.what());
