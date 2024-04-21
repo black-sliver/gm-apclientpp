@@ -35,15 +35,19 @@
 #define JSON_STRING 2.
 #define JSON_NUMBER 3.
 #define JSON_NULL 4.
-#define poll_event std::pair<std::string, json>
 
 using json = nlohmann::json;
+
+typedef struct {
+    std::string script;
+    json script_data;
+} PollEvent;
 
 
 static int api = 0;
 static std::unique_ptr<APClient> apclient;
 static std::string result; // buffer for string results of simple functions
-static std::queue<poll_event> queue; // queue of events to run on poll
+static std::queue<PollEvent> queue; // queue of events to run on poll
 static std::string script; // buffer for script result
 static std::vector<json> script_data;  // buffer for script data
 static APClient::Version client_version;
@@ -118,7 +122,7 @@ static void show_error(const std::string& error)
 
 static void apclient_impl_reset()
 {
-    queue = std::queue<std::pair<std::string, json>>();
+    queue = std::queue<PollEvent>();
     if (apclient)
         apclient->reset();
 }
@@ -356,14 +360,17 @@ double apclient_reset()
 const char* apclient_poll()
 {
     const std::lock_guard<std::mutex> lock(mut);
-    if (!apclient)
+    if (!apclient) {
+        script_data = {};
         return "{}";
+    }
     apclient->poll();
     if (queue.empty()) {
         script = "{}";
+        script_data = {};
     } else {
-        script = std::move(queue.front().first);
-        script_data = { queue.front().second };
+        script = std::move(queue.front().script);
+        script_data = { std::move(queue.front().script_data) };
         queue.pop();
     }
     return script.c_str();
