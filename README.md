@@ -215,7 +215,7 @@ Additionally, these built-in GM functions may be called by an `apclient_poll` sc
 
 * `show_message(message: str): none` when an exception occurs.
 
-If this happens, the following JSON data is made avalaible:
+If this happens, the following JSON data is made available:
 
 * `show_message` { "message": `str` }
 
