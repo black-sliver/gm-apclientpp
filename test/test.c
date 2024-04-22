@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     if (strcmp(rendered, "Player1: Hello, world!") == 0) {
         printf("render json: OK\n");
     } else {
-        printf("render json: err (\"%s\")\n%s\n", apclient_poll()); // poll should print the error
+        printf("render json: err (\"%s\")\n%s\n", rendered, apclient_poll()); // poll should print the error
         goto exit;
     }
 
