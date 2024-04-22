@@ -8,4 +8,22 @@ on:
 
 jobs:
   build-msbuild:
+    needs: prepare-release
     uses: ./.github/workflows/build-msbuild.yaml
+
+  prepare-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set env
+        if: ${{ github.ref_type == 'tag' }}
+        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Create Release
+        if: ${{ github.ref_type == 'tag' }}
+        uses: softprops/action-gh-release@975c1b265e11dd76618af1c374e7981f9a6ff44a
+        with:
+          draft: true
+          name: gm-apclientpp ${{ env.RELEASE_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
