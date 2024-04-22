@@ -20,12 +20,11 @@
 
 bool poll_for(const char* marker, const char* error_marker)
 {
-    const char* script = "";
     unsigned long t = (unsigned long)time(NULL);
 
     printf("polling ...\n");
     while ((unsigned long)time(NULL) - t < 5) {
-        script = apclient_poll();
+        const char* script = apclient_poll();
         if (strcmp(script, "{}") != 0) {
             printf("%s\n", script);
             if (strstr(script, marker) != NULL)
@@ -41,8 +40,6 @@ bool poll_for(const char* marker, const char* error_marker)
 
 int main(int argc, char** argv)
 {
-    const char* script = "";
-
     // test data for render_json
     const char* chat = "{\"cmd\":\"PrintJSON\",\"data\":[{\"text\":\"Player1: Hello, world!\"}],"
                        "\"message\":\"Hello, world!\",\"slot\":1,\"team\":0,\"type\":\"Chat\"}";
