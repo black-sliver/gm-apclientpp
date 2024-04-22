@@ -1,4 +1,6 @@
-# build with GCC to see if source code is valid
+# build with GCC and latewst MSVC to see if source code is valid
+# this is not the same as the release build but a lot faster and hopefully close enough
+
 name: CI
 
 on:
@@ -22,3 +24,23 @@ jobs:
 
       - name: Build
         run: ./build-posix.sh
+
+  build-vs2022:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Patch project
+        shell: bash
+        run: |
+          sed -i 's/<\/AdditionalOptions>/ \/DWSWRAP_NO_SSL<\/AdditionalOptions>/g' vs2015/gm-apclientpp.vcxproj
+          sed -i 's/<PlatformToolset>v140<\/PlatformToolset>/<PlatformToolset>v143<\/PlatformToolset>/' vs2015/gm-apclientpp.vcxproj
+          sed -i 's/libssl.lib;libcrypto.lib;//g' vs2015/gm-apclientpp.vcxproj
+      - name: Add MSBuild to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build
+        run: |
+          msbuild /m /p:Configuration=Release vs2015 /p:Platform=x86
