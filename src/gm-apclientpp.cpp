@@ -380,7 +380,7 @@ const char* apclient_poll()
     } else {
         script = std::move(queue.front().script);
         script_name = std::move(queue.front().script_name);
-        script_data_root = move(queue.front().script_data);
+        script_data_root = std::move(queue.front().script_data);
         script_data = { &script_data_root };
         queue.pop();
     }
