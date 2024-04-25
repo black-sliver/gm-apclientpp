@@ -58,9 +58,25 @@ jobs:
       - name: Build Project
         run: |
           msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{matrix.sln}} /p:Platform=${{env.BUILD_PLATFORM}}
+          dir ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
 
       - name: Store
         uses: actions/upload-artifact@v4
         with:
           name: gm-apclientpp-${{matrix.sln}}
           path: ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll
+
+      - name: Set env
+        if: ${{ github.ref_type == 'tag' }}
+        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Release
+        if: ${{ github.ref_type == 'tag' }}
+        uses: softprops/action-gh-release@975c1b265e11dd76618af1c374e7981f9a6ff44a
+        with:
+          draft: true
+          name: gm-apclientpp ${{ env.RELEASE_TAG }}
+          files: ${{matrix.sln}}/${{env.BUILD_CONFIGURATION}}/gm-apclientpp.dll
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
