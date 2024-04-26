@@ -154,3 +154,43 @@
 {
     return external_call(ext_apclient_death_link, argument0)
 }
+#define apclient_json_proxy
+{
+    return external_call(ext_apclient_json_proxy, argument0, argument1)
+}
+#define apclient_json_exists
+{
+    return external_call(ext_apclient_json_exists, argument0, argument1)
+}
+#define apclient_json_typeof
+{
+    return external_call(ext_apclient_json_typeof, argument0)
+}
+#define apclient_json_size
+{
+    return external_call(ext_apclient_json_size, argument0)
+}
+#define apclient_json_get_string
+{
+    return external_call(ext_apclient_json_get_string, argument0)
+}
+#define apclient_json_string_at
+{
+    return external_call(ext_apclient_json_string_at, argument0, argument1)
+}
+#define apclient_json_get_number
+{
+    return external_call(ext_apclient_json_get_number, argument0)
+}
+#define apclient_json_number_at
+{
+    return external_call(ext_apclient_json_number_at, argument0, argument1)
+}
+#define apclient_json_dump
+{
+    return external_call(ext_apclient_json_dump, argument0)
+}
+#define apclient_json_source
+{
+    return external_call(ext_apclient_json_source)
+}

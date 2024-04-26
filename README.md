@@ -10,7 +10,9 @@ allowing to connect to an [Archipelago](https://archipelago.gg/) server with nat
 
 This was written for Game Maker 7 and 8, however all versions of GM that support the API described in "Using DLL" in
 "Designing Games with Game Maker" of GM7/GM8 should be supported.
-It only depends on `external_define`, `external_call` and `execute_string`. This is not an "extension" (.gex) file.
+It only depends on `external_define` and `external_call`. This is not an "extension" (.gex) file.
+
+For GM7/GM8, `execute_string` can be used to handle events. For GMS, an alternative to this is provided.
 
 GMS2+ is (currently) not supported because it uses different syntax for strings.
 
@@ -33,6 +35,7 @@ GM only has `number` and `string`, so the types listed below are defined as foll
 * `json` is a `str` that is valid json. A json array is `'[...]'`, a json object is `'{...}'`.
 * `int[]` is either a `json` array of numbers (GM -> DLL) or a global array variable in GM (DLL -> GM)
 * `str[]` is either a `json` array of strings (GM -> DLL) or a global array variable in GM (DLL -> GM)
+* `double` is a `number` in GM, and a `double` in C.
 
 ## API
 
@@ -78,14 +81,34 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
    to set `global.ap_checked_locations: int[]` and `global.ap_checked_locations_len: int`
 * `apclient_get_missing_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_missing_locations: int[]` and `global.ap_missing_locations_len: int`
-
-The following calls are only implemented for `api_version >= 2`.
-
 * `apclient_bounce(data: json): bool` sends a Bounce with the provided data and the targets selected through
    `apclient_set_bounce_targets`.
 * `apclient_death_link(cause: string): bool` sends a DeathLink Bounce with the provided cause, unless cause is an
-   empty string, in which case it will be omitted. The time and source are retrieved automatically. Targets selected
-   through `apclient_set_bounce_targets` will be ignored in favor of sending the Bounce only to the DeathLink tag.
+   empty string, in which case it will be omitted. The time and source are retrieved automatically. Targets selected through
+   `apclient_set_bounce_targets` will be ignored in favor of sending the Bounce only to the DeathLink tag.
+
+Some of the events require the return of data that is difficult to represent directly in GM. To remedy this, the data is
+stored in JSON form and made accessible through function calls. If an event is received in response to `apclient_poll`,
+the following functions can be used to query its corresponding JSON data until the next call to `apclient_poll`. Most of
+the events do not require these functions, as long as `execute_string` is available.
+
+These functions take a `proxy`, which is an `int` that represents a location in the JSON data. When data is first
+accessed after an event only `proxy = 0` is available, which represents the root level. Some of these functions also take
+a `key`, which is the name of the element to be accessed. If the data at `proxy` is an array, then `key` must be a `str`
+representing a number equal to or greater than 0.
+
+* `apclient_json_proxy(proxy: int, key: str): int` returns a new `proxy`, making the data at `key` available through its use,
+   if `key` is not found at `proxy`, `-1` is returned instead.
+* `apclient_json_exists(proxy: int, key: str): bool` return `true` if `key` can be found at `proxy`.
+* `apclient_json_typeof(proxy: int): int` returns the type of `proxy`, which will be one of the JSON type constants set up
+   in init.
+* `apclient_json_size(proxy: int): int` returns the number of elements at `proxy`.
+* `apclient_json_get_string(proxy: int): str` if `proxy` is of type `AP_JSON_STRING`, returns its value.
+* `apclient_json_string_at(proxy: int, key: str): str` shorthand for `apclient_json_get_string(apclient_json_proxy(proxy, key))`.
+* `apclient_json_get_number(proxy: int): double` if `proxy` is of type `AP_JSON_NUMBER`, returns its value.
+* `apclient_json_number_at(proxy: int, key: str): double` shorthand for `apclient_json_get_number(apclient_json_proxy(proxy, key))`.
+* `apclient_json_dump(proxy: int): str` returns the `json` corresponding to `proxy`.
+* `apclient_json_source(): str` returns the name of the event that made the data available.
 
 The following functions set variables that would normally be passed into another function, but can't be because of GM
 limitations.
@@ -94,7 +117,7 @@ limitations.
    and ConnectUpdate.
 * `apclient_set_version(ma: int, mi: int, r: int): bool` set the mod/client version that will be passed to ConnectSlot.
 * `apclient_set_bounce_targets(games: str[], slots: int[], tags: str[]): bool` set the games, slot IDs and tags that
-   will be passed to Bounce. Only for `api_version >= 2`.
+   will be passed to Bounce.
 
 The following functions interact directly with the AP server and return `true` if the command was successfully queue,
 or false if the command was invalid or the connection was not established yet.
@@ -108,19 +131,14 @@ or false if the command was invalid or the connection was not established yet.
 * `apclient_status_update(status: int): bool` sends StatusUpdate message, see `AP_CLIENT_STATUS_*` constants.
 * `apclient_location_checks(locations: int[]): bool` sends LocationChecks, marking locations as checked.
 * `apclient_location_scouts(locations: int[], create_as_hints: int): bool` sends LocationScouts.
-   Wait for `location_info`event  to get the result.
-
-### TODO
-
-* A way to extract values from slot_data.
+   Wait for `location_info` event to get the result.
 
 ### Not implemented
 
-The following are not implemented for `api_version = 1`.
+The following are not implemented.
 Open for suggestions / requests.
 
 * `apclient_get_players(): List[NetWorkPlayer]` the return type of this is not easy to implement in GM.
-* `apclient_bounce(...): bool` not sure about the API and `bounced` event isn't implemented yet either.
 * `apclient_get(...): bool` data storage / GetReply and Received not implemented yet
 * `apclient_set_notify(...): bool` as above
 * `apclient_set(...): bool` as above
@@ -142,13 +160,20 @@ The following consts should be set up in the init:
 * `global.AP_CLIENT_STATUS_PLAYING = 20` - player is playing their game (as above)
 * `global.AP_CLIENT_STATUS_GOAL = 30` - player reached their goal.
    Use this in `apclient_status_update` on goal completion.
+* `global.AP_JSON_MISSING = -1` - returned by `apclient_json_typeof` when failing to determine the type.
+* `global.AP_JSON_OBJECT = 0` - returned by `apclient_json_typeof` when the value at `proxy` is a json object.
+* `global.AP_JSON_ARRAY = 1` - returned by `apclient_json_typeof` when the value at `proxy` is an array.
+* `global.AP_JSON_STRING = 2` - returned by `apclient_json_typeof` when the value at `proxy` is compatible with `string`.
+* `global.AP_JSON_NUMBER = 3` - returned by `apclient_json_typeof` when the value at `proxy` is compatible with `number`.
+* `global.AP_JSON_NULL = 4` - returned by `apclient_json_typeof` when the value at `proxy` is `null`.
 
 ## Events
 
 The script returned by `apclient_poll` expects the following functions to exist in your scripts to handle events,
 so you need to define all of them:
 
-* `ap_room_info(data: json)` called when receiving RoomInfo from server, argument is currently unused (`'{}'`).
+* `ap_room_info(data: json)` called when receiving RoomInfo from server, argument is currently unused (`'{}'`),
+   but the JSON calls can be used to retrieve the data.
 * `ap_slot_refused(len: int)` called when `apclient_connect_slot` failed, len is the size of error messages,
    messages can be retrieved from `global.arg_errors: str[]`.
 * `ap_slot_connected(slot_data: json)` called when `apclient_connect_slot` succeeded
@@ -167,12 +192,46 @@ so you need to define all of them:
 * `ap_socket_disconnected()` network connection died, can't send things until reconnected.
 * `ap_socket_error(error: str)` network connection failed. Useful for debugging, but client will retry internally.
    Either keep a count of errors (abort for >2 failed attempts) or use a timeout for `ap_room_info` (abort after >5sec).
-* `ap_bounced(bounce: json)` called when receiving Bounced from server. Only for `api_version >= 2`.
+* `ap_bounced(bounce: json)` called when receiving Bounced from server.
+   The JSON calls can be used to retrieve the data.
+
+These events also make the following JSON data available through the `apclient_json_...` calls:
+
+* `ap_slot_refused` { "len": `int`, "reasons" : `str[]` }
+* `ap_slot_connected` see "slot_data" of [Connected](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#connected).
+* `ap_items_received` { "index": `int`, "len": `int`, "ids": `int[]`, "names": `str[]`, "flags": `int[]`, "players": `int[]`, "locations": `int[]` }
+* `ap_location_info` { "len": `int`, "items": `int[]`, "flags": `int[]`, "players": `int[]`, "locations": `int[]` }
+* `ap_location_checked` { "len": `int`, "locations": `int[]` }
+* `ap_print_json` see [PrintJSON](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#printjson).
+* `ap_socket_error` { "message": `str` }
+* `ap_bounced` see [Bounced](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md#bounced).
+
+Additionally, these built-in GM functions may be called by an `apclient_poll` script:
+
+* `show_message(message: str): none` when an exception occurs.
+
+If this happens, the following JSON data is made available:
+
+* `show_message` { "message": `str` }
 
 ### Not implemented
 
-The following are not implemented for `api_version = 1`.
+The following are not implemented.
 
-* `ap_bounced(...)` when a player sent a Bounce
 * `ap_retrieved(...)` result for `apclient_get`
 * `ap_set_reply(...)` when a player sent a Set that matches your SetNotify
+
+## API version differences
+
+### Version 1
+
+Initial version.
+
+### Version 2
+
+Bounce implemented through the following calls:
+* `apclient_bounce`
+* `apclient_death_link`
+* `apclient_set_bounce_targets`
+
+The `ap_bounced` event is now supported.
