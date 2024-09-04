@@ -40,6 +40,7 @@ extern "C" {
 
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_player_alias(double slot);
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_player_game(double slot);
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_game();
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_location_name(double id, const char* game);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_location_id(const char* name);
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_item_name(double id, const char* game);

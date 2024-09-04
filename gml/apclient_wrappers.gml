@@ -30,6 +30,10 @@
 {
     return external_call(ext_apclient_get_player_game, argument0)
 }
+#define apclient_get_game
+{
+    return external_call(ext_apclient_get_game)
+}
 #define apclient_get_location_name
 {
     return external_call(ext_apclient_get_location_name, argument0, argument1)

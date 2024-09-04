@@ -405,6 +405,15 @@ const char* apclient_get_player_game(double slot)
     return result.c_str();
 }
 
+const char* apclient_get_game()
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return "";
+    result = apclient->get_game();
+    return result.c_str();
+}
+
 const char* apclient_get_location_name(double id, const char* game)
 {
     const std::lock_guard<std::mutex> lock(mut);
