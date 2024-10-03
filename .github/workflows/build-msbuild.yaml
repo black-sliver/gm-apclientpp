@@ -7,18 +7,38 @@ on:
 jobs:
   build-msbuild:
     # TODO: automated testing
-    env:
-      BUILD_PLATFORM: "x86"
-      BUILD_CONFIGURATION: Release
-      OPENSSL_BUILD_PLATFORM: VC-WIN32
-      ARCH: win32
     runs-on: windows-latest
     strategy:
       matrix:
         sln:
           - vs2015
+        platform:
+          - win32
+          - win64
+      fail-fast: false
+
 
     steps:
+      - name: Set env win32
+        if: |
+          matrix.platform == 'win32'
+        shell: bash
+        run: |
+          echo "ARCH=win32" >> $GITHUB_ENV
+          echo "BUILD_PLATFORM=x86" >> $GITHUB_ENV
+          echo "BUILD_CONFIGURATION=Release" >> $GITHUB_ENV
+          echo "OPENSSL_BUILD_PLATFORM=VC-WIN32" >> $GITHUB_ENV
+
+      - name: Set env win64
+        if: |
+          matrix.platform == 'win64'
+        shell: bash
+        run: |
+          echo "ARCH=win64" >> $GITHUB_ENV
+          echo "BUILD_PLATFORM=x64" >> $GITHUB_ENV
+          echo "BUILD_CONFIGURATION=Release" >> $GITHUB_ENV
+          echo "OPENSSL_BUILD_PLATFORM=VC-WIN64A" >> $GITHUB_ENV
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -50,25 +70,37 @@ jobs:
           cd dep
           git clone -b OpenSSL_1_1_1-stable --depth 1 https://github.com/openssl/openssl.git
           cd openssl
-          md x86
-          cd x86
+          md ${{env.BUILD_PLATFORM}}
+          cd ${{env.BUILD_PLATFORM}}
           perl ..\Configure ${{env.OPENSSL_BUILD_PLATFORM}} no-shared
           nmake /S
 
       - name: Build Project
         run: |
           msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{matrix.sln}} /p:Platform=${{env.BUILD_PLATFORM}}
+
+      - name: Move Output
+        if: |
+          matrix.platform == 'win64'
+        run: |
+          # no idea why OutputPath isn't working
+          md ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
+          cp ${{matrix.sln}}\x64\${{env.BUILD_CONFIGURATION}}\*.dll ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
           dir ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
 
       - name: Store
         uses: actions/upload-artifact@v4
         with:
-          name: gm-apclientpp-${{matrix.sln}}
+          name: gm-apclientpp-${{matrix.sln}}-${{matrix.platform}}
           path: ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll
 
       - name: Set env
         if: ${{ github.ref_type == 'tag' }}
         run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Package
+        if: ${{ github.ref_type == 'tag' }}
+        run: Compress-Archive -Path ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll -DestinationPath gm-apclientpp-${{matrix.platform}}.zip
 
       - name: Release
         if: ${{ github.ref_type == 'tag' }}
@@ -76,7 +108,7 @@ jobs:
         with:
           draft: true
           name: gm-apclientpp ${{ env.RELEASE_TAG }}
-          files: ${{matrix.sln}}/${{env.BUILD_CONFIGURATION}}/gm-apclientpp.dll
+          files: gm-apclientpp-${{matrix.platform}}.zip
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
