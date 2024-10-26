@@ -58,6 +58,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_reset(): bool` reset internal state and reconnect on next `poll`.
 * `apclient_get_player_alias(slot: int): str` returns player alias, player name, or `'Unknown'` for given slot.
 * `apclient_get_player_game(slot: int): str` returns game name or `''` for given slot.
+* `apclient_get_game(): str` returns currently played game name or `''`.
 * `apclient_get_location_name(id: int, game: str): str` returns location name or `'Unknown'` for given id and game.
 * `apclient_get_location_id(name: str): int` returns location id for given name in connected game,
    or `< -9007199254740991` if not found.
