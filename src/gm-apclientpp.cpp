@@ -46,6 +46,7 @@ typedef struct {
 
 
 static int api = 0;
+static bool gms2_string_handling = false;
 static std::unique_ptr<APClient> apclient;
 static std::string result; // buffer for string results of simple functions
 static std::queue<PollEvent> queue; // queue of events to run on poll
@@ -96,7 +97,7 @@ static void replace_all(std::string& s, const std::string& from, const std::stri
 
 static void escape_inplace(std::string& s, bool escape_pound = true, bool escape_quotes = true)
 {
-    if (escape_pound) {
+    if (escape_pound && !gms2_string_handling) {
         // # -> \#
         replace_all(s, "#", "\\#");
         // \n -> #
@@ -161,6 +162,11 @@ double apclient_init(double api_version)
     const std::lock_guard<std::mutex> lock(mut);
     if (api != 0) // already initialized
         return GM_FALSE;
+    // api versions at and above 200 are for GMS2
+    if (api_version >= 200) {
+        gms2_string_handling = true;
+        api_version -= 200;
+    }
     if (api_version < 1 || api_version > 2) // unsupported api version
         return GM_FALSE;
     api = api_version;

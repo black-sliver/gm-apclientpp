@@ -14,7 +14,7 @@ It only depends on `external_define` and `external_call`. This is not an "extens
 
 For GM7/GM8, `execute_string` can be used to handle events. For GMS, an alternative to this is provided.
 
-GMS2+ is (currently) not supported because it uses different syntax for strings.
+GMS2 string syntax support exists and can be activated by specifying it through `api_version`, as explained further below.
 
 ## API Limitations
 
@@ -47,7 +47,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 **Warning:** some of the functions will only return correct values after room info or when `is_data_package_valid()`
   returns true, typically it's safe to just wait until `ap_connected` event was called.
 
-* `apclient_init(api_version: int): bool` initialize the lib and set API version (where `1 <= api_version <= 2`),
+* `apclient_init(api_version: int): bool` initialize the lib and set API version (where `1 <= api_version <= 2`, increase by 200 for GMS2 string syntax support),
    returns `true` on success.
 * `apclient_deinit(): bool` free all resources (kind of optional, but has to be called before a second `apclient_init`)
 * `apclient_connect(uuid: str, game: str, host: str): bool` start connecting to a server.
