@@ -43,9 +43,10 @@ jobs:
       - name: Patch project
         shell: bash
         run: |
-          sed -i 's/<\/AdditionalOptions>/ \/DWSWRAP_NO_SSL<\/AdditionalOptions>/g' ${{matrix.sln}}/gm-apclientpp.vcxproj
+          sed -i 's/<\/AdditionalOptions>/ \/DWSWRAP_NO_SSL \/DWSWRAP_NO_COMPRESSION<\/AdditionalOptions>/g' ${{matrix.sln}}/gm-apclientpp.vcxproj
           sed -i 's/<PlatformToolset>v140<\/PlatformToolset>/<PlatformToolset>v143<\/PlatformToolset>/' ${{matrix.sln}}/gm-apclientpp.vcxproj
           sed -i 's/libssl.lib;libcrypto.lib;//g' ${{matrix.sln}}/gm-apclientpp.vcxproj
+          sed -i 's/zlib.lib;//g' ${{matrix.sln}}/gm-apclientpp.vcxproj
       - name: Add MSBuild to PATH
         uses: ilammy/msvc-dev-cmd@v1
       - name: Build
