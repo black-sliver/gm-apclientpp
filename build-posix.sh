@@ -7,7 +7,7 @@
 CXX="${CXX:-g++}"
 DLL_EXT="${DLL_EXT:-.so}"
 
-LIBS="-pthread -lssl -lcrypto $LIBS"
+LIBS="-pthread -lssl -lcrypto -lz $LIBS"
 #CFLAGS="-g -Og $CFLAGS" # debug
 CFLAGS="-s -Os $CFLAGS" # release
 DEFINES="-DASIO_STANDALONE -DWSWRAP_SEND_EXCEPTIONS -DGM_APCLIENTPP_EXPORTS $DEFINES"
