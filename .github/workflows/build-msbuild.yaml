@@ -65,6 +65,8 @@ jobs:
       - uses: shogo82148/actions-setup-perl@v1
 
       - name: Build OpenSSL
+        env:
+          TERM: ansi
         run: |
           md dep
           cd dep
