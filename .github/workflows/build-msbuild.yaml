@@ -65,10 +65,12 @@ jobs:
       - uses: shogo82148/actions-setup-perl@v1
 
       - name: Build OpenSSL
+        env:
+          TERM: ansi
         run: |
           md dep
           cd dep
-          git clone -b OpenSSL_1_1_1-stable --depth 1 https://github.com/openssl/openssl.git
+          git clone -b openssl-3.4.0 --depth 1 https://github.com/openssl/openssl.git
           cd openssl
           md ${{env.BUILD_PLATFORM}}
           cd ${{env.BUILD_PLATFORM}}
