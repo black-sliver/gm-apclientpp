@@ -170,7 +170,7 @@ double apclient_init(double api_version)
     if (api_version < 1 || api_version > 2) // unsupported api version
         return GM_FALSE;
     api = api_version;
-    client_version = {0, 4, 3};
+    client_version = {0, 6, 4};
     items_handling = 0;
     bounce_games = {};
     bounce_slots = {};
