@@ -7,14 +7,16 @@ on:
 jobs:
   build-msbuild:
     # TODO: automated testing
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        sln:
-          - vs2015
-        platform:
-          - win32
-          - win64
+        include:
+          - os: windows-2022
+            sln: vs2022
+            platform: win32
+          - os: windows-2022
+            sln: vs2022
+            platform: win64
       fail-fast: false
 
 
@@ -51,10 +53,7 @@ jobs:
           Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vs_buildtools.exe" -OutFile "vs_BuildTools.exe"
           Start-Process -FilePath ./vs_BuildTools.exe -ArgumentList "--add", "Microsoft.VisualStudio.Component.VC.140", "--quiet", "--norestart", "--force", "--wait" -Wait -PassThru
 
-
-      - uses: ilammy/setup-nasm@v1
-
-      - name: Add MSBuild to PATH
+      - name: MSVC Dev Cmd (VS2015)
         uses: ilammy/msvc-dev-cmd@v1
         if: |
           matrix.sln == 'vs2015'
@@ -62,7 +61,18 @@ jobs:
           arch: ${{env.ARCH}}
           toolset: '14.0'
 
-      - uses: shogo82148/actions-setup-perl@v1
+      - name: MSVC Dev Cmd (VS2022)
+        uses: ilammy/msvc-dev-cmd@v1
+        if: |
+          matrix.sln == 'vs2022'
+        with:
+          arch: ${{env.ARCH}}
+
+      - name: Install NASM
+        uses: ilammy/setup-nasm@v1
+
+      - name: Install Perl
+        uses: shogo82148/actions-setup-perl@v1
 
       - name: Build OpenSSL
         env:
