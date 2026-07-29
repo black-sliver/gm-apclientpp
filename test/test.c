@@ -45,6 +45,8 @@ int main(int argc, char** argv)
     const char* chat = "{\"cmd\":\"PrintJSON\",\"data\":[{\"text\":\"Player1: Hello, world!\"}],"
                        "\"message\":\"Hello, world!\",\"slot\":1,\"team\":0,\"type\":\"Chat\"}";
     const char* rendered;
+    char* checkedLocationsJson;
+    char* missingLocationsJson;
 
     // init lib and connect
     printf("init: %s\n", RES(apclient_init(1)));
@@ -89,6 +91,21 @@ int main(int argc, char** argv)
     // server may answer in different order, so definitely wait for reply before sending Goodbye
     if (!poll_for("ap_location_info(", NULL))
         goto exit;
+    printf("\n");
+
+    // fetch checked and missing locations as JSON string
+    printf("getting checked and missing locations:\n");
+    checkedLocationsJson = strdup(apclient_get_checked_locations_json());
+    missingLocationsJson = strdup(apclient_get_missing_locations_json());
+    printf("%s\n%s\n", checkedLocationsJson, missingLocationsJson);
+    if (checkedLocationsJson[0] != '[' || missingLocationsJson[0] != '[' ||
+            checkedLocationsJson == "[]" && missingLocationsJson == "[]") {
+        free(checkedLocationsJson);
+        free(missingLocationsJson);
+        goto exit;
+    }
+    free(checkedLocationsJson);
+    free(missingLocationsJson);
     printf("\n");
 
     // send Goodbye to chat
