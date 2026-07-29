@@ -80,8 +80,10 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_has_password(): bool`: available in and after `ap_room_info`, `true` if `connect_slot` requires password.
 * `apclient_get_checked_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_checked_locations: int[]` and `global.ap_checked_locations_len: int`
+* `apclient_get_checked_locations_json(): str`: returns JSON string containing an array of checked location ids
 * `apclient_get_missing_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_missing_locations: int[]` and `global.ap_missing_locations_len: int`
+* `apclient_get_missing_locations_json(): str`: returns JSON string containing an array of missing location ids
 * `apclient_bounce(data: json): bool` sends a Bounce with the provided data and the targets selected through
    `apclient_set_bounce_targets`.
 * `apclient_death_link(cause: string): bool` sends a DeathLink Bounce with the provided cause, unless cause is an

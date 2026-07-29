@@ -170,7 +170,7 @@ double apclient_init(double api_version)
     if (api_version < 1 || api_version > 2) // unsupported api version
         return GM_FALSE;
     api = api_version;
-    client_version = {0, 4, 3};
+    client_version = {0, 6, 4};
     items_handling = 0;
     bounce_games = {};
     bounce_slots = {};
@@ -575,6 +575,15 @@ const char* apclient_get_checked_locations()
     return script.c_str();
 }
 
+const char* apclient_get_checked_locations_json()
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return "[]"; // or should we return ""?
+    result = json(apclient->get_checked_locations()).dump();
+    return result.c_str();
+}
+
 const char* apclient_get_missing_locations()
 {
     const std::lock_guard<std::mutex> lock(mut);
@@ -589,6 +598,15 @@ const char* apclient_get_missing_locations()
         "    global.ap_missing_locations_len=" + std::to_string(i) + ";\r\n"
         "}";
     return script.c_str();
+}
+
+const char* apclient_get_missing_locations_json()
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return "[]"; // or should we return ""?
+    result = json(apclient->get_missing_locations()).dump();
+    return result.c_str();
 }
 
 double apclient_set_items_handling(double value)
