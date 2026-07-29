@@ -62,8 +62,14 @@ extern "C" {
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_server_time();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_has_password();
 
+    /// returns checked locations as script populating global.ap_checked_locations and global.ap_checked_locations_len
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_checked_locations();
+    /// returns checked locations as JSON string
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_checked_locations_json();
+    /// returns missing locations as script populating global.ap_missing_locations and global.ap_missing_locations_len
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_missing_locations();
+    /// returns missing locations as JSON string
+    GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_missing_locations_json();
 
     GM_DLL_EXPORT double GM_DLL_CALL apclient_set_items_handling(double items_handling);
     GM_DLL_EXPORT double GM_DLL_CALL apclient_set_version(double major, double minor, double revision);

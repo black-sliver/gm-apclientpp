@@ -102,9 +102,17 @@
 {
     return external_call(ext_apclient_get_checked_locations)
 }
+#define apclient_get_checked_locations_json
+{
+    return external_call(ext_apclient_get_checked_locations_json)
+}
 #define apclient_get_missing_locations
 {
     return external_call(ext_apclient_get_missing_locations)
+}
+#define apclient_get_missing_locations_json
+{
+    return external_call(ext_apclient_get_missing_locations_json)
 }
 #define apclient_set_items_handling
 {
