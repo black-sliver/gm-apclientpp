@@ -57,7 +57,7 @@ jobs:
           Start-Process -FilePath ./vs_BuildTools.exe -ArgumentList "--add", "Microsoft.VisualStudio.Component.VC.140", "--quiet", "--norestart", "--force", "--wait" -Wait -PassThru
 
       - name: MSVC Dev Cmd (VS2015)
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0
         if: |
           matrix.sln == 'vs2015'
         with:
@@ -65,17 +65,17 @@ jobs:
           toolset: '14.0'
 
       - name: MSVC Dev Cmd (VS2022)
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0
         if: |
           matrix.sln == 'vs2022'
         with:
           arch: ${{env.ARCH}}
 
       - name: Install NASM
-        uses: ilammy/setup-nasm@v1
+        uses: ilammy/setup-nasm@72793074d3c8cdda771dba85f6deafe00623038b  # v1.5.2
 
       - name: Install Perl
-        uses: shogo82148/actions-setup-perl@v1
+        uses: shogo82148/actions-setup-perl@v1.44.2  # immutable release
 
       - name: Build OpenSSL
         env:
