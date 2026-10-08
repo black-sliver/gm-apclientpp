@@ -59,8 +59,8 @@ extern "C" {
     GM_DLL_EXPORT double GM_DLL_CALL apclient_is_data_package_valid();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_get_server_time();
     GM_DLL_EXPORT double GM_DLL_CALL apclient_has_password();
-    GM_DLL_EXPORT double GM_DLL_CALL apclient_get_server_time();
-    GM_DLL_EXPORT double GM_DLL_CALL apclient_has_password();
+    /// returns integer number representing the Permission for key, or -1.0 if not found
+    GM_DLL_EXPORT double GM_DLL_CALL apclient_get_permission(const char* key);
 
     /// returns checked locations as script populating global.ap_checked_locations and global.ap_checked_locations_len
     GM_DLL_EXPORT const char* GM_DLL_CALL apclient_get_checked_locations();

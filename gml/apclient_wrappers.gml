@@ -98,6 +98,10 @@
 {
     return external_call(ext_apclient_has_password)
 }
+#define apclient_get_permission
+{
+    return external_call(ext_apclient_get_permission)
+}
 #define apclient_get_checked_locations
 {
     return external_call(ext_apclient_get_checked_locations)

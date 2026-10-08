@@ -78,6 +78,7 @@ We use the following notation below: `name(arg_name: arg_type, ...): return_type
 * `apclient_get_server_time(): number`: returns the estimated server time stamp as floating point number.
    This may be useful for things like deathlink.
 * `apclient_has_password(): bool`: available in and after `ap_room_info`, `true` if `connect_slot` requires password.
+* `apclient_get_permission(key: str): int`: available in and after `ap_room_info`, returns a permission value as integer, or -1 if missing.
 * `apclient_get_checked_locations(): str`: returns a string that should be passed into `execute_string`
    to set `global.ap_checked_locations: int[]` and `global.ap_checked_locations_len: int`
 * `apclient_get_checked_locations_json(): str`: returns JSON string containing an array of checked location ids

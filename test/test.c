@@ -47,6 +47,7 @@ int main(int argc, char** argv)
     const char* rendered;
     char* checkedLocationsJson;
     char* missingLocationsJson;
+    int release_permission, does_not_exist_permission;
 
     // init lib and connect
     printf("init: %s\n", RES(apclient_init(1)));
@@ -84,6 +85,17 @@ int main(int argc, char** argv)
     if (!poll_for("Hello, world!", NULL))
         goto exit;
     printf("\n");
+
+    // check release permissions
+    release_permission = (int)apclient_get_permission("release");
+    printf("release permission: %d\n", release_permission);
+    if (release_permission < 0 || release_permission > 7)
+        goto exit;
+    // check missing permission
+    does_not_exist_permission = (int)apclient_get_permission("does_not_exist");
+    printf("does not exist permission: %d\n", does_not_exist_permission);
+    if (does_not_exist_permission != -1)
+        goto exit;
 
     // send scout
     printf("send scouts: %s: %s\n", SCOUTS, RES(apclient_location_scouts(SCOUTS, 0)));
