@@ -12,6 +12,9 @@ permissions:
 jobs:
   build-msbuild:
     needs: prepare-release
+    permissions:
+      id-token: 'write'
+      attestations: 'write'
     uses: ./.github/workflows/build-msbuild.yaml
 
   prepare-release:

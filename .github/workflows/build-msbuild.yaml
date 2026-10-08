@@ -6,6 +6,8 @@ on:
 
 permissions:
   contents: 'write'
+  id-token: 'write'
+  attestations: 'write'
 
 jobs:
   build-msbuild:
@@ -113,19 +115,26 @@ jobs:
           cp ${{matrix.sln}}\x64\${{env.BUILD_CONFIGURATION}}\*.dll ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
           dir ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}
 
+      - name: Package
+        run: Compress-Archive -Path ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll -DestinationPath gm-apclientpp-${{matrix.platform}}.zip
+
+      - name: Attest Build and Zip
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6  # v4.2.2
+        with:
+          subject-path: |
+            ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll
+            gm-apclientpp-${{matrix.platform}}.zip
+
       - name: Store
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: gm-apclientpp-${{matrix.sln}}-${{matrix.platform}}
-          path: ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll
+          path: gm-apclientpp-${{matrix.platform}}.zip
+          archive: false
+          if-no-files-found: error
 
       - name: Set env
         if: ${{ github.ref_type == 'tag' }}
         run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-      - name: Package
-        if: ${{ github.ref_type == 'tag' }}
-        run: Compress-Archive -Path ${{matrix.sln}}\${{env.BUILD_CONFIGURATION}}\gm-apclientpp.dll -DestinationPath gm-apclientpp-${{matrix.platform}}.zip
 
       - name: Release
         if: ${{ github.ref_type == 'tag' }}
