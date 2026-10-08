@@ -1,4 +1,4 @@
-# build with GCC and latewst MSVC to see if source code is valid
+# build with GCC and latest MSVC to see if source code is valid
 # this is not the same as the release build but a lot faster and hopefully close enough
 
 name: CI
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           submodules: recursive
-      - name: Patch project
+      - name: Patch project (no zlib, no ssl)
         shell: bash
         run: |
           sed -i 's/<\/AdditionalOptions>/ \/DWSWRAP_NO_SSL \/DWSWRAP_NO_COMPRESSION<\/AdditionalOptions>/g' ${{matrix.sln}}/gm-apclientpp.vcxproj
