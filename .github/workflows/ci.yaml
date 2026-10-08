@@ -7,6 +7,8 @@ on:
   push:
   pull_request:
 
+permissions: {}
+
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
