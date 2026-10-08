@@ -5,7 +5,6 @@ on:
   workflow_call:
 
 permissions:
-  contents: 'write'
   id-token: 'write'
   attestations: 'write'
 
@@ -23,7 +22,6 @@ jobs:
             sln: vs2022
             platform: win64
       fail-fast: false
-
 
     steps:
       - name: Set env win32
@@ -131,18 +129,3 @@ jobs:
           path: gm-apclientpp-${{matrix.platform}}.zip
           archive: false
           if-no-files-found: error
-
-      - name: Set env
-        if: ${{ github.ref_type == 'tag' }}
-        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-      - name: Release
-        if: ${{ github.ref_type == 'tag' }}
-        uses: softprops/action-gh-release@975c1b265e11dd76618af1c374e7981f9a6ff44a
-        with:
-          draft: true
-          name: gm-apclientpp ${{ env.RELEASE_TAG }}
-          files: gm-apclientpp-${{matrix.platform}}.zip
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
