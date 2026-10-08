@@ -10,8 +10,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           submodules: recursive
 
-      - uses: codespell-project/actions-codespell@v2
+      - uses: codespell-project/actions-codespell@e3258cca84ce02b0bb36a3d41f2c18f719a0cc1a  # v2.4.3
