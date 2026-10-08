@@ -25,7 +25,9 @@ globalvar ext_apclient_init, ext_apclient_deinit, ext_apclient_connect, ext_apcl
     ext_apclient_get_player_game, ext_apclient_get_game, ext_apclient_get_location_name, ext_apclient_get_location_id, ext_apclient_get_item_name, ext_apclient_get_item_id,
     ext_apclient_render_json, ext_apclient_get_state, ext_apclient_get_seed, ext_apclient_get_slot, ext_apclient_get_player_number, ext_apclient_get_team_number,
     ext_apclient_get_hint_points, ext_apclient_get_hint_cost_points, ext_apclient_get_hint_cost_percent, ext_apclient_is_data_package_valid, ext_apclient_get_server_time,
-    ext_apclient_has_password, ext_apclient_get_checked_locations, ext_apclient_get_missing_locations, ext_apclient_set_items_handling, ext_apclient_set_version,
+    ext_apclient_has_password,
+    ext_apclient_get_checked_locations, ext_apclient_get_checked_locations_json, ext_apclient_get_missing_locations, ext_apclient_get_missing_locations_json,
+    ext_apclient_set_items_handling, ext_apclient_set_version,
     ext_apclient_say, ext_apclient_connect_slot, ext_apclient_connect_update_items_handling, ext_apclient_connect_update, ext_apclient_sync, ext_apclient_status_update,
     ext_apclient_location_checks, ext_apclient_location_scouts;
 
