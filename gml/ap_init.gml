@@ -25,7 +25,7 @@ globalvar ext_apclient_init, ext_apclient_deinit, ext_apclient_connect, ext_apcl
     ext_apclient_get_player_game, ext_apclient_get_game, ext_apclient_get_location_name, ext_apclient_get_location_id, ext_apclient_get_item_name, ext_apclient_get_item_id,
     ext_apclient_render_json, ext_apclient_get_state, ext_apclient_get_seed, ext_apclient_get_slot, ext_apclient_get_player_number, ext_apclient_get_team_number,
     ext_apclient_get_hint_points, ext_apclient_get_hint_cost_points, ext_apclient_get_hint_cost_percent, ext_apclient_is_data_package_valid, ext_apclient_get_server_time,
-    ext_apclient_has_password,
+    ext_apclient_has_password, apclient_get_permission,
     ext_apclient_get_checked_locations, ext_apclient_get_checked_locations_json, ext_apclient_get_missing_locations, ext_apclient_get_missing_locations_json,
     ext_apclient_set_items_handling, ext_apclient_set_version,
     ext_apclient_say, ext_apclient_connect_slot, ext_apclient_connect_update_items_handling, ext_apclient_connect_update, ext_apclient_sync, ext_apclient_status_update,
@@ -57,6 +57,7 @@ ext_apclient_get_hint_cost_percent = external_define("gm-apclientpp.dll", "apcli
 ext_apclient_is_data_package_valid = external_define("gm-apclientpp.dll", "apclient_is_data_package_valid", dll_cdecl, ty_real, 0);
 ext_apclient_get_server_time = external_define("gm-apclientpp.dll", "apclient_get_server_time", dll_cdecl, ty_real, 0);
 ext_apclient_has_password = external_define("gm-apclientpp.dll", "apclient_has_password", dll_cdecl, ty_real, 0);
+ext_apclient_get_permission = external_define("gm-apclientpp.dll", "apclient_get_permission", dll_cdecl, ty_real, 1, ty_string);
 ext_apclient_get_checked_locations = external_define("gm-apclientpp.dll", "apclient_get_checked_locations", dll_cdecl, ty_string, 0);
 ext_apclient_get_checked_locations_json = external_define("gm-apclientpp.dll", "apclient_get_checked_locations_json", dll_cdecl, ty_string, 0);
 ext_apclient_get_missing_locations = external_define("gm-apclientpp.dll", "apclient_get_missing_locations", dll_cdecl, ty_string, 0);

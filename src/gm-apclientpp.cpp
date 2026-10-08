@@ -559,6 +559,18 @@ double apclient_has_password()
     return GM_BOOL(apclient && apclient->has_password());
 }
 
+double apclient_get_permission(const char* key)
+{
+    const std::lock_guard<std::mutex> lock(mut);
+    if (!apclient)
+        return -1.;
+    const auto& permissions = apclient->get_permissions();
+    const auto it = permissions.find(key);
+    if (it == permissions.end())
+        return -1.;
+    return static_cast<double>(it->second);
+}
+
 const char* apclient_get_checked_locations()
 {
     const std::lock_guard<std::mutex> lock(mut);
