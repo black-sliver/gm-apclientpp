@@ -10,6 +10,7 @@ permissions:
 
 env:
   OPENSSL_VERSION: '3.5.9'
+  ZLIB_VERSION: '1.3.2'
 
 jobs:
   build-msbuild:
@@ -96,7 +97,7 @@ jobs:
       - name: Build zlib
         run: |
           cd dep
-          git clone -b v1.3.1 --depth 1 https://github.com/madler/zlib.git
+          git clone -b "v${{env.ZLIB_VERSION}}" --depth 1 https://github.com/madler/zlib.git
           cd zlib
           nmake -f win32/Makefile.msc
           md ${{env.BUILD_PLATFORM}}
