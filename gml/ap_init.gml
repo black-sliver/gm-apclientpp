@@ -10,6 +10,7 @@ global.AP_STATE_SOCKET_CONNECTED = 2 // network connection accepted, nothing rec
 global.AP_STATE_ROOM_INFO = 3 // room info was received, slot not connected yet
 global.AP_STATE_SLOT_CONNECTED = 4 // slot successfully connected, can send/receive locations/items and chat, etc.
 global.AP_CLIENT_STATUS_UNKNOWN = 0 // default status
+global.AP_CLIENT_STATUS_CONNECTED = 5 // player is connected
 global.AP_CLIENT_STATUS_READY = 10 // player is ready to play (setting this is optional at the moment)
 global.AP_CLIENT_STATUS_PLAYING = 20 // player is playing their game (as above)
 global.AP_CLIENT_STATUS_GOAL = 30 // player reached their goal. Use this in apclient_status_update on goal completion.
