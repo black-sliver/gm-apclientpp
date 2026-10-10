@@ -38,7 +38,7 @@ jobs:
         with:
           draft: true
           name: gm-apclientpp ${{ env.RELEASE_TAG }}
-          files: gm-apclientpp-*.zip
+          files: '**/gm-apclientpp-*.zip'
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
