@@ -164,6 +164,12 @@ The following consts should be set up in the init:
 * `global.AP_CLIENT_STATUS_PLAYING = 20` - player is playing their game (as above)
 * `global.AP_CLIENT_STATUS_GOAL = 30` - player reached their goal.
    Use this in `apclient_status_update` on goal completion.
+* `global.AP_PERMISSION_DISABLED = 0` - Completely disables access
+* `global.AP_PERMISSION_ENABLED = 1` - Allows manual use
+* `global.AP_PERMISSION_GOAL = 2` - Allows manual use after goal completion
+* `global.AP_PERMISSION_FORCED = 4` - Forces usage, no meaning by itself
+* `global.AP_PERMISSION_AUTO = 6` - Forces use after goal completion, only works for release and collect
+* `global.AP_PERMISSION_AUTO_ENABLED = 7` - Forces use after goal completion, allows manual use any time
 * `global.AP_JSON_MISSING = -1` - returned by `apclient_json_typeof` when failing to determine the type.
 * `global.AP_JSON_OBJECT = 0` - returned by `apclient_json_typeof` when the value at `proxy` is a json object.
 * `global.AP_JSON_ARRAY = 1` - returned by `apclient_json_typeof` when the value at `proxy` is an array.
